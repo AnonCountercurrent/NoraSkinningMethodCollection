@@ -1,5 +1,5 @@
 from importlib import reload
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 from NoraFDDA.UI import noraFDDAWidget
 from NoraGeneral import noraModelSelect
 from NoraGeneral import noraMDagObjectSelect

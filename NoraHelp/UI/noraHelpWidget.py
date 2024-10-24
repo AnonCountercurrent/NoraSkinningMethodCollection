@@ -3,15 +3,21 @@
 ################################################################################
 ## Form generated from reading UI file 'noraHelpWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCommandLinkButton, QDialog, QHBoxLayout,
+    QLabel, QSizePolicy, QSpacerItem, QVBoxLayout,
+    QWidget)
 
 class Ui_noraHelpWidget(object):
     def setupUi(self, noraHelpWidget):
@@ -22,7 +28,7 @@ class Ui_noraHelpWidget(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.widget = QWidget(noraHelpWidget)
         self.widget.setObjectName(u"widget")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.widget.sizePolicy().hasHeightForWidth())
@@ -35,7 +41,7 @@ class Ui_noraHelpWidget(object):
         self.label.setObjectName(u"label")
         self.label.setGeometry(QRect(170, 40, 251, 71))
         font = QFont()
-        font.setFamily(u"Bahnschrift")
+        font.setFamilies([u"Bahnschrift"])
         font.setPointSize(16)
         self.label.setFont(font)
         self.label.setText(u"Nora SMC")
@@ -43,7 +49,7 @@ class Ui_noraHelpWidget(object):
         self.label_2.setObjectName(u"label_2")
         self.label_2.setGeometry(QRect(170, 100, 431, 31))
         font1 = QFont()
-        font1.setFamily(u"\u5e7c\u5706")
+        font1.setFamilies([u"\u5e7c\u5706"])
         font1.setPointSize(12)
         self.label_2.setFont(font1)
         self.label_2.setText(u"Nora Skinning Method Collection")
@@ -64,7 +70,7 @@ class Ui_noraHelpWidget(object):
         self.horizontalLayout.setObjectName(u"horizontalLayout")
         self.widget_2 = QWidget(noraHelpWidget)
         self.widget_2.setObjectName(u"widget_2")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Fixed, QSizePolicy.Preferred)
+        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
         sizePolicy1.setHorizontalStretch(0)
         sizePolicy1.setVerticalStretch(0)
         sizePolicy1.setHeightForWidth(self.widget_2.sizePolicy().hasHeightForWidth())
@@ -77,17 +83,17 @@ class Ui_noraHelpWidget(object):
         self.verticalLayout.setObjectName(u"verticalLayout")
         self.gotoDocs = QCommandLinkButton(noraHelpWidget)
         self.gotoDocs.setObjectName(u"gotoDocs")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Expanding, QSizePolicy.Preferred)
+        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
         sizePolicy2.setHorizontalStretch(0)
         sizePolicy2.setVerticalStretch(0)
         sizePolicy2.setHeightForWidth(self.gotoDocs.sizePolicy().hasHeightForWidth())
         self.gotoDocs.setSizePolicy(sizePolicy2)
         font2 = QFont()
-        font2.setFamily(u"Segoe UI")
+        font2.setFamilies([u"Segoe UI"])
         font2.setPointSize(9)
         font2.setUnderline(True)
         self.gotoDocs.setFont(font2)
-        self.gotoDocs.setCursor(QCursor(Qt.PointingHandCursor))
+        self.gotoDocs.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
         self.gotoDocs.setText(u"Docs URL")
         self.gotoDocs.setAutoDefault(True)
 
@@ -96,7 +102,7 @@ class Ui_noraHelpWidget(object):
         self.gotoCreatedBy = QCommandLinkButton(noraHelpWidget)
         self.gotoCreatedBy.setObjectName(u"gotoCreatedBy")
         self.gotoCreatedBy.setFont(font2)
-        self.gotoCreatedBy.setCursor(QCursor(Qt.PointingHandCursor))
+        self.gotoCreatedBy.setCursor(QCursor(Qt.CursorShape.PointingHandCursor))
 #if QT_CONFIG(accessibility)
         self.gotoCreatedBy.setAccessibleDescription(u"")
 #endif // QT_CONFIG(accessibility)
@@ -110,7 +116,7 @@ class Ui_noraHelpWidget(object):
 
         self.verticalLayout_2.addLayout(self.horizontalLayout)
 
-        self.verticalSpacer = QSpacerItem(20, 153, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 153, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 

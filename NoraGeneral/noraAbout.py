@@ -1,5 +1,5 @@
 from importlib import reload
-from PySide2 import QtCore, QtWidgets
+from PySide6 import QtCore, QtWidgets
 from NoraGeneral.UI import noraAboutWidget
 import webbrowser
 

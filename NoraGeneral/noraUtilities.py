@@ -6,10 +6,8 @@ import maya.mel as mel
 import maya.cmds as cmds
 import numpy as np
 import scipy as sp
-import sklearn as sl
-import torch
-from shiboken2 import wrapInstance
-from PySide2 import QtWidgets
+from shiboken6 import wrapInstance
+from PySide6 import QtWidgets
 import math
 
 

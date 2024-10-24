@@ -1,5 +1,5 @@
 from importlib import reload
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from NoraHelp.UI import noraHelpWidget
 from NoraHelp.UI.noraHelpWidget import Ui_noraHelpWidget
 from NoraGeneral.noraUtilities import *
@@ -29,7 +29,7 @@ def get_use_custom_front_style():
 
 
 def create_by_link():
-    webbrowser.open("http://www.baidu.com")
+    webbrowser.open("https://github.com/AnonCountercurrent")
 
 
 def docs_link():

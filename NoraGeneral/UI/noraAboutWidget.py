@@ -3,15 +3,20 @@
 ################################################################################
 ## Form generated from reading UI file 'noraAboutWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.2
+## Created by: Qt User Interface Compiler version 6.8.0
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import *
-from PySide2.QtGui import *
-from PySide2.QtWidgets import *
-
+from PySide6.QtCore import (QCoreApplication, QDate, QDateTime, QLocale,
+    QMetaObject, QObject, QPoint, QRect,
+    QSize, QTime, QUrl, Qt)
+from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
+    QFont, QFontDatabase, QGradient, QIcon,
+    QImage, QKeySequence, QLinearGradient, QPainter,
+    QPalette, QPixmap, QRadialGradient, QTransform)
+from PySide6.QtWidgets import (QApplication, QCommandLinkButton, QDialog, QLabel,
+    QSizePolicy, QSpacerItem, QVBoxLayout, QWidget)
 
 class Ui_noraAboutWidget(object):
     def setupUi(self, noraAboutWidget):
@@ -31,7 +36,7 @@ class Ui_noraAboutWidget(object):
 
         self.linkButton = QCommandLinkButton(noraAboutWidget)
         self.linkButton.setObjectName(u"linkButton")
-        sizePolicy = QSizePolicy(QSizePolicy.Preferred, QSizePolicy.Fixed)
+        sizePolicy = QSizePolicy(QSizePolicy.Policy.Preferred, QSizePolicy.Policy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.linkButton.sizePolicy().hasHeightForWidth())
@@ -39,7 +44,7 @@ class Ui_noraAboutWidget(object):
 
         self.verticalLayout.addWidget(self.linkButton)
 
-        self.verticalSpacer = QSpacerItem(20, 201, QSizePolicy.Minimum, QSizePolicy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 201, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout.addItem(self.verticalSpacer)
 

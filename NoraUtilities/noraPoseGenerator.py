@@ -1,5 +1,5 @@
 from importlib import reload
-from PySide2 import QtCore, QtGui, QtWidgets
+from PySide6 import QtCore, QtGui, QtWidgets
 from NoraUtilities.UI import noraPoseGeneratorWidget
 from NoraUtilities.UI import noraPoseGeneratorWindow
 from NoraUtilities.UI import noraChannelSelectWindow

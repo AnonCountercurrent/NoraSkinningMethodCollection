@@ -2,8 +2,8 @@ import os
 import sys
 import importlib
 from importlib import reload
-from PySide2 import QtCore, QtGui, QtWidgets
-from PySide2.QtWidgets import *
+from PySide6 import QtCore, QtGui, QtWidgets
+from PySide6.QtWidgets import *
 from NoraUI import noraMainWindow
 from NoraUI.noraMainWindow import Ui_noraMainWindow
 from NoraGeneral.noraUtilities import *

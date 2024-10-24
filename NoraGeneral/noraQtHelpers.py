@@ -1,8 +1,8 @@
 # Copyright Epic Games, Inc. All Rights Reserved
 # 这个类来自UE的MLDeformer，用来创建输入框
 
-from PySide2 import QtCore
-from PySide2 import QtWidgets
+from PySide6 import QtCore
+from PySide6 import QtWidgets
 
 
 class QtHelpers:
