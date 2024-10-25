@@ -208,8 +208,14 @@ def set_keyframes(ctrl_name, attr_name, key_times, key_values):
         curve_node.create(mplug)
 
     # 先把旧关键帧移除
-    while curve_node.numKeys != 0:
-        curve_node.remove(curve_node.numKeys - 1)
+    # 移除所有
+    # while curve_node.numKeys != 0:
+    #     curve_node.remove(curve_node.numKeys - 1)
+    # 仅移除重叠部分
+    for key_time in key_times:
+        found_key_index = curve_node.find(key_time)
+        if found_key_index is not None:
+            curve_node.remove(found_key_index)
 
     # 如果是角度类的曲线，转换成弧度
     angular_types = [oma.MFnAnimCurve.kAnimCurveTA, oma.MFnAnimCurve.kAnimCurveUA]
