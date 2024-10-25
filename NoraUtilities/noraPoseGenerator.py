@@ -487,7 +487,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
 
     def init_table_widget(self):
         self.tableWidget.setColumnCount(7)
-        self.tableWidget.setHorizontalHeaderLabels(['Parameter Name', 'Default', 'Min', 'Max', 'Object Type', 'Group', 'Samples'])
+        self.tableWidget.setHorizontalHeaderLabels(['Parameter Name', 'Default', 'Min', 'Max', 'Object Type', 'Group', 'Sample Num'])
         self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         for col in range(self.tableWidget.columnCount()):
             self.tableWidget.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
