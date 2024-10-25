@@ -14,6 +14,7 @@ import random
 import maya.api.OpenMaya as om
 import maya.api.OpenMayaAnim as oma
 import numpy as np
+import itertools
 
 reload(noraUtilities)
 reload(noraPoseGeneratorWidget)
@@ -67,6 +68,7 @@ class NoraChannelMinMaxValue:
     name: str
     min_value: float
     max_value: float
+    sample_num: int
 
 
 @dataclass
@@ -80,9 +82,9 @@ class NoraPoseGeneratorConfig:
     sigma: float
 
     def set_default_min_max_values(self):
-        self.channel_min_max_values.append(NoraChannelMinMaxValue('rotateX', -90.0, 90.0))
-        self.channel_min_max_values.append(NoraChannelMinMaxValue('rotateY', -90.0, 90.0))
-        self.channel_min_max_values.append(NoraChannelMinMaxValue('rotateZ', -90.0, 90.0))
+        self.channel_min_max_values.append(NoraChannelMinMaxValue('rotateX', -90.0, 90.0, 1))
+        self.channel_min_max_values.append(NoraChannelMinMaxValue('rotateY', -90.0, 90.0, 1))
+        self.channel_min_max_values.append(NoraChannelMinMaxValue('rotateZ', -90.0, 90.0, 1))
 
     def find_channel_min_max(self, attribute_name):
         """
@@ -105,6 +107,7 @@ class ChannelInfo:
     object_type: str
     group_name: str
     channel_name: str
+    sample_num: int
 
 
 class NoraPoseGenConfigJsonEncoder(json.JSONEncoder):
@@ -139,8 +142,8 @@ class NoraPoseGenSettingsWindow(QtWidgets.QMainWindow, noraPoseGenSettingsWindow
         """
         初始化表格
         """
-        self.tableWidget.setColumnCount(3)
-        self.tableWidget.setHorizontalHeaderLabels(['Name', 'Min', 'Max'])
+        self.tableWidget.setColumnCount(4)
+        self.tableWidget.setHorizontalHeaderLabels(['Name', 'Min', 'Max', 'Num'])
         self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         for col in range(self.tableWidget.columnCount()):
             self.tableWidget.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
@@ -148,6 +151,7 @@ class NoraPoseGenSettingsWindow(QtWidgets.QMainWindow, noraPoseGenSettingsWindow
         self.tableWidget.setColumnWidth(0, table_width * 0.5)
         self.tableWidget.setColumnWidth(1, table_width * 0.1)
         self.tableWidget.setColumnWidth(2, table_width * 0.1)
+        self.tableWidget.setColumnWidth(3, table_width * 0.1)
         self.tableWidget.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
@@ -167,6 +171,7 @@ class NoraPoseGenSettingsWindow(QtWidgets.QMainWindow, noraPoseGenSettingsWindow
             self.tableWidget.setItem(row, 0, QtWidgets.QTableWidgetItem(parameter.name))
             self.tableWidget.setItem(row, 1, QtWidgets.QTableWidgetItem(str(parameter.min_value)))
             self.tableWidget.setItem(row, 2, QtWidgets.QTableWidgetItem(str(parameter.max_value)))
+            self.tableWidget.setItem(row, 3, QtWidgets.QTableWidgetItem(str(parameter.sample_num)))
         self.tableWidget.resizeRowsToContents()
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
 
@@ -233,6 +238,7 @@ class NoraPoseGenSettingsWindow(QtWidgets.QMainWindow, noraPoseGenSettingsWindow
         self.tableWidget.setItem(row_count, 0, QtWidgets.QTableWidgetItem("None"))
         self.tableWidget.setItem(row_count, 1, QtWidgets.QTableWidgetItem(str(0)))
         self.tableWidget.setItem(row_count, 2, QtWidgets.QTableWidgetItem(str(1)))
+        self.tableWidget.setItem(row_count, 3, QtWidgets.QTableWidgetItem(str(1)))
 
     def save_button_click(self):
         """
@@ -243,7 +249,8 @@ class NoraPoseGenSettingsWindow(QtWidgets.QMainWindow, noraPoseGenSettingsWindow
         for row in range(row_count):
             limit = NoraChannelMinMaxValue(self.tableWidget.item(row, 0).text(),
                                            float(self.tableWidget.item(row, 1).text()),
-                                           float(self.tableWidget.item(row, 2).text()))
+                                           float(self.tableWidget.item(row, 2).text()),
+                                           int(self.tableWidget.item(row, 3).text()))
             self.config.channel_min_max_values.append(limit)
 
 
@@ -299,6 +306,7 @@ class NoraChannelSelectWindow(QtWidgets.QMainWindow, noraChannelSelectWindow.Ui_
                         min_value = attribute_min_max.min_value if attribute_min_max else 0.0
                     if not max_value:
                         max_value = attribute_min_max.max_value if attribute_min_max else 1.0
+                    sample_num = attribute_min_max.sample_num if attribute_min_max else 1
                     object_type = cmds.objectType(obj)
                     # joint的约束信息最优先
                     has_limit_info, limit_info = get_rotation_limits(obj, object_type)
@@ -313,7 +321,8 @@ class NoraChannelSelectWindow(QtWidgets.QMainWindow, noraChannelSelectWindow.Ui_
                                                max_value,
                                                object_type,
                                                get_attribute_group_name(long_channel_name, obj),
-                                               long_channel_name)
+                                               long_channel_name,
+                                               sample_num)
                     self.current_channels.append(channel_info)
 
         # 将Channel名去掉重复的显示出来
@@ -355,6 +364,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
     table_column__maximum = 3
     table_column__object_type = 4
     table_column__group_name = 5
+    table_column__samples = 6
 
     min_label_text_width = 160
     main_button_size = 22
@@ -392,6 +402,10 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
                                                                         row_index=4,
                                                                         name='组名:', value='',
                                                                         min_label_text_width=self.min_label_text_width)
+        _, self.selected_parameter_samples_widget = QtHelpers.add_int_field(layout=self.ChannelPropertiesLayout,
+                                                                            row_index=5,
+                                                                            name='采样数:', value=6, min_value=1, max_value=100,
+                                                                            min_label_text_width=self.min_label_text_width)
         self.selected_parameter_name_widget.setReadOnly(True)
         self.selected_parameter_default_widget.setReadOnly(True)
 
@@ -420,6 +434,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         self.selected_parameter_minimum_widget.valueChanged.connect(self.on_selected_parameter_min_value_changed)
         self.selected_parameter_maximum_widget.valueChanged.connect(self.on_selected_parameter_max_value_changed)
         self.selected_group_name_widget.textChanged.connect(self.on_selected_group_name_changed)
+        self.selected_parameter_samples_widget.valueChanged.connect(self.on_selected_parameter_samples_value_changed)
 
         # 成员
         self.add_channels_win = None
@@ -441,18 +456,18 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
                                                                                 name='起始帧:',
                                                                                 value=self.config.start_frame,
                                                                                 min_label_text_width=self.min_label_text_width)
-        _, self.generator_settings_controller_probability_widget = QtHelpers.add_int_field(layout=self.GeneratorSettingsLayout,
-                                                                                           row_index=2,
-                                                                                           name='随机比例:',
-                                                                                           value=self.config.controller_probability,
-                                                                                           min_value=0, max_value=100,
-                                                                                           min_label_text_width=self.min_label_text_width)
-        self.generator_settings_controller_probability_widget.setSuffix(' %')
         _, self.generator_settings_distribution_widget = QtHelpers.add_combo_box_field(layout=self.GeneratorSettingsLayout,
-                                                                                       row_index=3,
+                                                                                       row_index=2,
                                                                                        name='分布函数:',
-                                                                                       combo_items=["normal", "uniform"],
+                                                                                       combo_items=["normal", "uniform", "combination"],
                                                                                        min_label_text_width=self.min_label_text_width)
+        self.generator_settings_controller_probability_label_widget, self.generator_settings_controller_probability_widget = QtHelpers.add_int_field(layout=self.GeneratorSettingsLayout,
+                                                                                                                                                     row_index=3,
+                                                                                                                                                     name='随机比例:',
+                                                                                                                                                     value=self.config.controller_probability,
+                                                                                                                                                     min_value=0, max_value=100,
+                                                                                                                                                     min_label_text_width=self.min_label_text_width)
+        self.generator_settings_controller_probability_widget.setSuffix(' %')
         self.generator_settings_normal_sigma_label_widget, self.generator_settings_normal_sigma_widget = QtHelpers.add_float_field(layout=self.GeneratorSettingsLayout,
                                                                                                                                    row_index=4,
                                                                                                                                    name='标准差:',
@@ -471,8 +486,8 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         self.splitter.setStretchFactor(1, 0)
 
     def init_table_widget(self):
-        self.tableWidget.setColumnCount(6)
-        self.tableWidget.setHorizontalHeaderLabels(['Parameter Name', 'Default', 'Min', 'Max', 'Object Type', 'Group'])
+        self.tableWidget.setColumnCount(7)
+        self.tableWidget.setHorizontalHeaderLabels(['Parameter Name', 'Default', 'Min', 'Max', 'Object Type', 'Group', 'Samples'])
         self.tableWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
         for col in range(self.tableWidget.columnCount()):
             self.tableWidget.horizontalHeader().setSectionResizeMode(col, QtWidgets.QHeaderView.ResizeToContents)
@@ -483,6 +498,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         self.tableWidget.setColumnWidth(self.table_column__maximum, table_width * 0.1)
         self.tableWidget.setColumnWidth(self.table_column__object_type, table_width * 0.2)
         self.tableWidget.setColumnWidth(self.table_column__group_name, table_width * 0.2)
+        self.tableWidget.setColumnWidth(self.table_column__samples, table_width * 0.1)
         self.tableWidget.horizontalHeader().setDefaultAlignment(QtCore.Qt.AlignLeft)
         self.tableWidget.horizontalHeader().setStretchLastSection(True)
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
@@ -593,6 +609,8 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
                                      QtWidgets.QTableWidgetItem(parameter.object_type))
             self.tableWidget.setItem(row, self.table_column__group_name,
                                      QtWidgets.QTableWidgetItem(parameter.group_name))
+            self.tableWidget.setItem(row, self.table_column__samples,
+                                     QtWidgets.QTableWidgetItem(str(parameter.sample_num)))
         self.tableWidget.resizeRowsToContents()
         self.tableWidget.horizontalHeader().setSectionResizeMode(QtWidgets.QHeaderView.Interactive)
 
@@ -685,12 +703,14 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
             self.selected_parameter_minimum_widget.setValue(parameter.min_value)
             self.selected_parameter_maximum_widget.setValue(parameter.max_value)
             self.selected_group_name_widget.setText(parameter.group_name)
+            self.selected_parameter_samples_widget.setValue(parameter.sample_num)
         else:
             self.selected_parameter_name_widget.setText('')
             self.selected_parameter_default_widget.setValue(0.0)
             self.selected_parameter_minimum_widget.setValue(0.0)
             self.selected_parameter_maximum_widget.setValue(1.0)
             self.selected_group_name_widget.setText('')
+            self.selected_parameter_samples_widget.setValue(1)
 
         self.selected_parameter_name_widget.blockSignals(False)
         self.selected_parameter_default_widget.blockSignals(False)
@@ -725,6 +745,15 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
             parameter.group_name = new_value
             self.tableWidget.item(index, self.table_column__group_name).setText(str(new_value))
 
+    def on_selected_parameter_samples_value_changed(self):
+        selected_param_indices = self.get_selected_attribute_indices()
+        for index in selected_param_indices:
+            display_name = self.tableWidget.item(index, 0).text()
+            parameter = self.get_channel_info_by_display_name(display_name)
+            new_value = self.selected_parameter_samples_widget.value()
+            parameter.sample_num = new_value
+            self.tableWidget.item(index, self.table_column__samples).setText(str(new_value))
+
     def on_generator_settings_num_samples_changed(self):
         self.config.num_samples = self.generator_settings_num_samples_widget.value()
 
@@ -736,96 +765,145 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
 
     def on_generator_settings_distribution_changed(self):
         self.config.distribution = self.generator_settings_distribution_widget.currentText()
-        if self.config.distribution != "normal":
-            self.generator_settings_normal_sigma_widget.setVisible(False)
-            self.generator_settings_normal_sigma_label_widget.setVisible(False)
-        else:
+        if self.config.distribution == "normal":
             self.generator_settings_normal_sigma_widget.setVisible(True)
             self.generator_settings_normal_sigma_label_widget.setVisible(True)
+            self.generator_settings_controller_probability_label_widget.setVisible(True)
+            self.generator_settings_controller_probability_widget.setVisible(True)
+        else:
+            if self.config.distribution == "combination":
+                self.generator_settings_controller_probability_label_widget.setVisible(False)
+                self.generator_settings_controller_probability_widget.setVisible(False)
+            else:
+                self.generator_settings_controller_probability_label_widget.setVisible(True)
+                self.generator_settings_controller_probability_widget.setVisible(True)
+            self.generator_settings_normal_sigma_widget.setVisible(False)
+            self.generator_settings_normal_sigma_label_widget.setVisible(False)
 
     def on_generator_settings_normal_sigma_changed(self):
         self.config.sigma = self.generator_settings_normal_sigma_widget.value()
 
     def generate_poses(self):
-        # 数据生成
-        self.process_bar.start_progress_bar('Generating...', True)
-
         frame_num = self.config.num_samples
         start_frame = self.config.start_frame
         gauss = self.config.distribution == 'normal'
         gauss_sigma = self.config.sigma
+        combination = self.config.distribution == 'combination'
         prob = self.config.controller_probability * 0.01
         channels = self.config.channels
         channel_num = len(channels)
         if channel_num < 1 or prob < 1.0e-7:
-            self.process_bar.stop_progress_bar()
             return
 
-        # 设置时间线
-        end_frame = start_frame + frame_num
-        cmds.playbackOptions(minTime=0, maxTime=end_frame)
+        # 根据配置计算一下总帧数 * channel 数
+        generate_frame_num = frame_num
+        total_operator_num = generate_frame_num + channel_num
+        if combination:
+            generate_frame_num = int(np.prod(np.array([channels[c_idx].sample_num for c_idx in range(0, channel_num)], dtype=int)))
+            total_operator_num = generate_frame_num + channel_num
+        self.process_bar.start_progress_bar('Generating...', True, total_operator_num)
 
-        # 生成组字典 {group_name, [int]}，用于设置是否随机
-        group_dict = dict()
-        for i in range(channel_num):
-            group_name = channels[i].group_name
-            if group_dict.__contains__(group_name):
-                group_dict[group_name].append(i)
-            else:
-                group_dict[group_name] = [i]
-        group_num = len(group_dict)
-        random_sign = [True for x in range(channel_num)]
-
-        # 取消节点
-        if self.process_bar.is_progress_bar_cancelled():
-            return
-
-        # 随机数参数
-        gauss_centre = None
-        gauss_width = None
-        if gauss:
-            gauss_centre_iter = ((channels[c_idx].max_value + channels[c_idx].min_value) * 0.5 for c_idx in range(channel_num))
-            gauss_centre = np.fromiter(gauss_centre_iter, dtype=float)
-            gauss_width_iter = (abs(channels[c_idx].max_value - channels[c_idx].min_value) * gauss_sigma for c_idx in range(channel_num))
-            gauss_width = np.fromiter(gauss_width_iter, dtype=float)
-        uniform_low_iter = (channels[c_idx].min_value for c_idx in range(channel_num))
-        uniform_low = np.fromiter(uniform_low_iter, dtype=float)
-        uniform_high_iter = (channels[c_idx].max_value for c_idx in range(channel_num))
-        uniform_high = np.fromiter(uniform_high_iter, dtype=float)
-
-        # 取消节点
-        if self.process_bar.is_progress_bar_cancelled():
-            return
-
-        # 生成通道值
+        # 数据生成
         key_times = om.MTimeArray()
-        channel_values = np.empty((frame_num, channel_num), dtype=float)
-        for i in range(frame_num):
-            key_times.append(om.MTime(i + start_frame))
-            # 首先确定这一帧有哪些组随机，哪些通道用默认的
-            if prob < 0.999:
-                for key, value in group_dict.items():
-                    random_value = random.uniform(0.0, 1.0)
-                    if random_value < prob:
-                        for c_idx in value:
-                            random_sign[c_idx] = True
-                    else:
-                        for c_idx in value:
-                            random_sign[c_idx] = False
-            # 设置通道值到数组
-            for j in range(channel_num):
-                if random_sign[j]:
-                    if gauss:
-                        random_value = np.random.normal(gauss_centre[j], gauss_width[j])
-                        while not(uniform_low[j] <= random_value <= uniform_high[j]):
-                            random_value = np.random.normal(gauss_centre[j], gauss_width[j])
-                        channel_values[i][j] = random_value
-                    else:
-                        channel_values[i][j] = np.random.uniform(uniform_low[j], uniform_high[j])
+        channel_values = np.empty((generate_frame_num, channel_num), dtype=float)
+        # 组合
+        if combination:
+            # 设置时间线
+            end_frame = start_frame + generate_frame_num
+            cmds.playbackOptions(minTime=0, maxTime=end_frame)
+
+            # 插值生成
+            channels_value_array = []
+            channels_index_array = [] # 用于标识当前值索引
+            for i in range(channel_num):
+                channel_i_value_array = []
+                channel_info = channels[i]
+                if channel_info.sample_num == 1:
+                    channel_i_value_array.append((channel_info.max_value + channel_info.min_value) * 0.5)
                 else:
-                    channel_values[i][j] = channels[j].default_value
-            # 更新进度条
-            self.process_bar.set_progress_bar_value(i / frame_num * 50.0)
+                    step_value = (channel_info.max_value - channel_info.min_value) / (channel_info.sample_num - 1)
+                    for j in range(0, channel_info.sample_num):
+                        channel_i_value_array.append(channel_info.min_value + step_value * j)
+                channels_value_array.append(channel_i_value_array)
+                channels_index_array.append(0)
+
+            # 取消节点
+            if self.process_bar.is_progress_bar_cancelled():
+                return
+
+            # 生成通道值
+            for i in range(generate_frame_num):
+                key_times.append(om.MTime(i + start_frame))
+            # 生成所有组合
+            combinations = itertools.product(*channels_value_array)
+            # 填充 channel_values 数组
+            for idx, combination in enumerate(combinations):
+                channel_values[idx, :] = combination
+        # 随机
+        else:
+            # 设置时间线
+            end_frame = start_frame + frame_num
+            cmds.playbackOptions(minTime=0, maxTime=end_frame)
+
+            # 生成组字典 {group_name, [int]}，用于设置是否随机
+            group_dict = dict()
+            for i in range(channel_num):
+                group_name = channels[i].group_name
+                if group_dict.__contains__(group_name):
+                    group_dict[group_name].append(i)
+                else:
+                    group_dict[group_name] = [i]
+            group_num = len(group_dict)
+            random_sign = [True for x in range(channel_num)]
+
+            # 取消节点
+            if self.process_bar.is_progress_bar_cancelled():
+                return
+
+            # 随机数参数
+            gauss_centre = None
+            gauss_width = None
+            if gauss:
+                gauss_centre_iter = ((channels[c_idx].max_value + channels[c_idx].min_value) * 0.5 for c_idx in range(channel_num))
+                gauss_centre = np.fromiter(gauss_centre_iter, dtype=float)
+                gauss_width_iter = (abs(channels[c_idx].max_value - channels[c_idx].min_value) * gauss_sigma for c_idx in range(channel_num))
+                gauss_width = np.fromiter(gauss_width_iter, dtype=float)
+            uniform_low_iter = (channels[c_idx].min_value for c_idx in range(channel_num))
+            uniform_low = np.fromiter(uniform_low_iter, dtype=float)
+            uniform_high_iter = (channels[c_idx].max_value for c_idx in range(channel_num))
+            uniform_high = np.fromiter(uniform_high_iter, dtype=float)
+
+            # 取消节点
+            if self.process_bar.is_progress_bar_cancelled():
+                return
+
+            # 生成通道值
+            for i in range(frame_num):
+                key_times.append(om.MTime(i + start_frame))
+                # 首先确定这一帧有哪些组随机，哪些通道用默认的
+                if prob < 0.999:
+                    for key, value in group_dict.items():
+                        random_value = random.uniform(0.0, 1.0)
+                        if random_value < prob:
+                            for c_idx in value:
+                                random_sign[c_idx] = True
+                        else:
+                            for c_idx in value:
+                                random_sign[c_idx] = False
+                # 设置通道值到数组
+                for j in range(channel_num):
+                    if random_sign[j]:
+                        if gauss:
+                            random_value = np.random.normal(gauss_centre[j], gauss_width[j])
+                            while not(uniform_low[j] <= random_value <= uniform_high[j]):
+                                random_value = np.random.normal(gauss_centre[j], gauss_width[j])
+                            channel_values[i][j] = random_value
+                        else:
+                            channel_values[i][j] = np.random.uniform(uniform_low[j], uniform_high[j])
+                    else:
+                        channel_values[i][j] = channels[j].default_value
+                # 更新进度条
+                self.process_bar.set_progress_bar_value(i)
 
         # 取消节点
         if self.process_bar.is_progress_bar_cancelled():
@@ -836,7 +914,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
             ctrl, attr = channels[c_idx].display_name.split('.')
             key_values_list = channel_values[:, c_idx].tolist()
             set_keyframes(ctrl, attr, key_times, key_values_list)
-            self.process_bar.set_progress_bar_value(50.0 + c_idx / channel_num * 50.0)
+            self.process_bar.set_progress_bar_value(c_idx + generate_frame_num)
             # 取消节点
             if self.process_bar.is_progress_bar_cancelled():
                 return

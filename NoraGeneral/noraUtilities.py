@@ -231,7 +231,7 @@ class NoraProgressBar:
     def __init__(self):
         self.main_progress_bar = None
 
-    def start_progress_bar(self, status_text='Processing...', interruptable=True):
+    def start_progress_bar(self, status_text='Processing...', interruptable=True, max_value=100):
         """
         创建新的进度
         """
@@ -246,7 +246,7 @@ class NoraProgressBar:
             beginProgress=True,
             isInterruptable=interruptable,
             status=status_text,
-            maxValue=100)
+            maxValue=max_value)
 
     def set_progress_bar_value(self, progress_percentage):
         """
@@ -262,6 +262,8 @@ class NoraProgressBar:
             exists = cmds.progressBar(self.main_progress_bar, query=True, exists=True)
             if exists:
                 result = cmds.progressBar(self.main_progress_bar, query=True, isCancelled=True)
+                if result:
+                    self.stop_progress_bar()
                 return result
         return False
 
