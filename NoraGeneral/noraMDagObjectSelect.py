@@ -18,14 +18,13 @@ class NoraMDagObjectSelect(QtWidgets.QDialog, noraMDagNodeSelectWidget.Ui_noraMD
         self.button_icon = self.style().standardIcon(arrow_back)
         self.pushButton.setIcon(self.button_icon)
 
-        self.dag_name = None
         self.pushButton.clicked.connect(self.get_selected_dag_object)
 
     def get_selected_dag_object(self):
-        self.dag_name = get_selected_dag_name()
-        self.lineEdit.setText(self.dag_name)
+        self.lineEdit.setText(get_selected_dag_name())
 
     def set_label_text(self, in_str):
         self.label.setText(in_str)
 
-
+    def get_dag_name(self):
+        return self.lineEdit.text()

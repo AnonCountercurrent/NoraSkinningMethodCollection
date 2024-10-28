@@ -3,9 +3,11 @@ from PySide6 import QtCore, QtWidgets
 from NoraGeneral.UI import noraModelSelectWidget
 from NoraGeneral.noraUtilities import *
 from NoraGeneral import noraMDagObjectSelect
+from NoraGeneral import noraFrameRange
 
 reload(noraModelSelectWidget)
 reload(noraMDagObjectSelect)
+reload(noraFrameRange)
 
 
 class NoraModelSelect(QtWidgets.QDialog, noraModelSelectWidget.Ui_noraModelSelectedWidget):
@@ -23,3 +25,5 @@ class NoraModelSelect(QtWidgets.QDialog, noraModelSelectWidget.Ui_noraModelSelec
         self.modelSelectLayout.addWidget(self.apply_widget)
         self.modelSelectLayout.addWidget(self.label_widget)
 
+        self.frame_range_widget = noraFrameRange.NoraFrameRange()
+        self.frameRangeLayout.addWidget(self.frame_range_widget)

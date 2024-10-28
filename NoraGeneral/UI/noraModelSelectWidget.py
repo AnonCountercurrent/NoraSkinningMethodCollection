@@ -15,8 +15,8 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QLabel,
-    QLineEdit, QSizePolicy, QVBoxLayout, QWidget)
+from PySide6.QtWidgets import (QApplication, QDialog, QHBoxLayout, QSizePolicy,
+    QVBoxLayout, QWidget)
 
 class Ui_noraModelSelectedWidget(object):
     def setupUi(self, noraModelSelectedWidget):
@@ -35,49 +35,10 @@ class Ui_noraModelSelectedWidget(object):
 
         self.modelSelectWithFrameRangeLayout.addLayout(self.modelSelectLayout)
 
-        self.horizontalLayout_3 = QHBoxLayout()
-        self.horizontalLayout_3.setObjectName(u"horizontalLayout_3")
-        self.label_3 = QLabel(self.verticalLayoutWidget)
-        self.label_3.setObjectName(u"label_3")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Expanding, QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label_3.sizePolicy().hasHeightForWidth())
-        self.label_3.setSizePolicy(sizePolicy)
+        self.frameRangeLayout = QHBoxLayout()
+        self.frameRangeLayout.setObjectName(u"frameRangeLayout")
 
-        self.horizontalLayout_3.addWidget(self.label_3)
-
-        self.leftRange = QLineEdit(self.verticalLayoutWidget)
-        self.leftRange.setObjectName(u"leftRange")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.leftRange.sizePolicy().hasHeightForWidth())
-        self.leftRange.setSizePolicy(sizePolicy1)
-        self.leftRange.setMaximumSize(QSize(80, 16777215))
-
-        self.horizontalLayout_3.addWidget(self.leftRange)
-
-        self.label_4 = QLabel(self.verticalLayoutWidget)
-        self.label_4.setObjectName(u"label_4")
-        sizePolicy2 = QSizePolicy(QSizePolicy.Policy.Fixed, QSizePolicy.Policy.Preferred)
-        sizePolicy2.setHorizontalStretch(0)
-        sizePolicy2.setVerticalStretch(0)
-        sizePolicy2.setHeightForWidth(self.label_4.sizePolicy().hasHeightForWidth())
-        self.label_4.setSizePolicy(sizePolicy2)
-
-        self.horizontalLayout_3.addWidget(self.label_4)
-
-        self.rightRange = QLineEdit(self.verticalLayoutWidget)
-        self.rightRange.setObjectName(u"rightRange")
-        sizePolicy1.setHeightForWidth(self.rightRange.sizePolicy().hasHeightForWidth())
-        self.rightRange.setSizePolicy(sizePolicy1)
-        self.rightRange.setMaximumSize(QSize(80, 16777215))
-
-        self.horizontalLayout_3.addWidget(self.rightRange)
-
-
-        self.modelSelectWithFrameRangeLayout.addLayout(self.horizontalLayout_3)
+        self.modelSelectWithFrameRangeLayout.addLayout(self.frameRangeLayout)
 
 
         self.retranslateUi(noraModelSelectedWidget)
@@ -87,7 +48,5 @@ class Ui_noraModelSelectedWidget(object):
 
     def retranslateUi(self, noraModelSelectedWidget):
         noraModelSelectedWidget.setWindowTitle(QCoreApplication.translate("noraModelSelectedWidget", u"Dialog", None))
-        self.label_3.setText(QCoreApplication.translate("noraModelSelectedWidget", u"\u5e27\u6570\u533a\u95f4\uff1a", None))
-        self.label_4.setText(QCoreApplication.translate("noraModelSelectedWidget", u"-", None))
     # retranslateUi
 

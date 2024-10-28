@@ -525,7 +525,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
             parent=self,
             caption='保存配置',
-            dir=save_path + r'\config',
+            dir=save_path + r'\pose_generator_config',
             filter='Configuration Files (*.json)')
         # 保存
         if len(file_path) > 0:
