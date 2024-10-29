@@ -65,7 +65,7 @@
         <item>
          <widget class="QPushButton" name="generateButton">
           <property name="text">
-           <string>Generate</string>
+           <string>生成驱动信息</string>
           </property>
          </widget>
         </item>

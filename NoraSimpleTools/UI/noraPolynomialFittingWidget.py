@@ -95,6 +95,6 @@ class Ui_noraPolynomialFittingWidget(object):
         self.baseGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Targets", None))
         self.settingsGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Settings", None))
         self.groupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Actions", None))
-        self.generateButton.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"Generate", None))
+        self.generateButton.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u4fe1\u606f", None))
     # retranslateUi
 

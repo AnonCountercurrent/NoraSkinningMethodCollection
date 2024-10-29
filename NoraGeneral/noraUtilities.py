@@ -54,7 +54,7 @@ def get_smc_path():
     获取工具路径
     """
     current_path = os.path.dirname(__file__)
-    current_path = current_path[:len(current_path) - len('General')]
+    current_path = current_path[:len(current_path) - len('NoraGeneral')]
     return current_path
 
 
@@ -105,6 +105,23 @@ def get_attribute_values(attribute_name, node_name):
         default_value = cmds.attributeQuery(attribute_name, node=node_name, listDefault=True)[0]
 
     return default_value, min_value, max_value
+
+
+def get_channel_matrix(attribute_names, start_frame: int, end_frame: int):
+    """
+    获取参数矩阵 frame x channel
+    """
+    channel_num = len(attribute_names)
+    frame_num = end_frame - start_frame
+    channel_matrix = np.empty((frame_num, channel_num), dtype=float)
+    cached_current_time = oma.MAnimControl.currentTime()
+    for i in range(frame_num):
+        t = i + start_frame
+        oma.MAnimControl.setCurrentTime(om.MTime(t))
+        for j in range(channel_num):
+            channel_matrix[i, j] = float(cmds.getAttr(attribute_names[j]))
+    oma.MAnimControl.setCurrentTime(cached_current_time)
+    return channel_matrix
 
 
 def get_rotation_limits(joint_name, object_type_string):

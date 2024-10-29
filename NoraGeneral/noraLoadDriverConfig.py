@@ -52,6 +52,25 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
             for c in channel_limit:
                 self.config.channel_min_max_values.append(noraPoseGenerator.NoraChannelMinMaxValue(**c))
             self.label.setText("Driver Info: " + str(len(channels_list)) + " channels")
-        else:
-            self.config = None
 
+    def get_matrix(self, start_frame: int, end_frame: int):
+        """
+        根据加载的驱动配置，获取channel值矩阵
+        :return: frame x channel
+        """
+        if self.config is None:
+            print("error: driver config is None")
+            return None
+        channel_num = len(self.config.channels)
+        if channel_num == 0:
+            return None
+        frame_num = end_frame - start_frame
+        channel_matrix = np.empty((frame_num, channel_num), dtype=float)
+        cached_current_time = oma.MAnimControl.currentTime()
+        for i in range(frame_num):
+            t = i + start_frame
+            oma.MAnimControl.setCurrentTime(om.MTime(t))
+            for j in range(channel_num):
+                channel_matrix[i, j] = float(cmds.getAttr(self.config.channels[j].name))
+        oma.MAnimControl.setCurrentTime(cached_current_time)
+        return channel_matrix
