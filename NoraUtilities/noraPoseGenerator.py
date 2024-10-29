@@ -911,7 +911,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
 
         # 将生成的数据作为曲线应用到maya
         for c_idx in range(channel_num):
-            ctrl, attr = channels[c_idx].display_name.split('.')
+            ctrl, attr = channels[c_idx].name.split('.')
             key_values_list = channel_values[:, c_idx].tolist()
             set_keyframes(ctrl, attr, key_times, key_values_list)
             self.process_bar.set_progress_bar_value(c_idx + generate_frame_num)
