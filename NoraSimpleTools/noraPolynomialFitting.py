@@ -88,15 +88,30 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         if channel_num == 0:
             print("error: driven list is empty")
             return
+
+        process_bar = NoraProgressBar()
+        process_bar.start_progress_bar(max_value=3+channel_num)
+
         channels = []
         for i in range(channel_num):
             item = self.driven_list_widget.listWidget.item(i)
             item_widget = self.driven_list_widget.listWidget.itemWidget(item)
             channels.append(item_widget.info)
+        if process_bar.is_progress_bar_cancelled():
+            process_bar.stop_progress_bar()
+            return
+        process_bar.set_progress_bar_value(1)
+
         driver_matrix = self.driver_info_widget.get_matrix(start_frame, end_frame)
         if driver_matrix is None:
+            process_bar.stop_progress_bar()
             return
+        process_bar.set_progress_bar_value(2)
+
         driven_matrix = get_channel_matrix(channels, start_frame, end_frame)
+        if process_bar.is_progress_bar_cancelled():
+            return
+        process_bar.set_progress_bar_value(3)
 
         if False:
             df = pd.DataFrame(driven_matrix)
@@ -104,5 +119,27 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             df = pd.DataFrame(driver_matrix)
             df.to_csv(r"C:\Users\Administrator\Downloads\driver_matrix.csv")
 
-        # for i in range(channel_num):
-        #
+        lin_reg = LinearRegression()
+        degree = self.degree_widget.number
+        if degree == 1:
+            for i in range(channel_num):
+                process_bar.set_progress_bar_value(3 + i)
+                y = driven_matrix[:, i]
+                lin_reg.fit(driver_matrix, y)
+                print(channels[i] + "--------------")
+                print(lin_reg.intercept_, lin_reg.coef_)
+                y_new = lin_reg.predict(driver_matrix)
+                print('MSE:', mean_squared_error(y, y_new))
+        else:
+            poly_features = PolynomialFeatures(degree=degree, include_bias=False)
+            poly_x = poly_features.fit_transform(driver_matrix)
+            for i in range(channel_num):
+                process_bar.set_progress_bar_value(3 + i)
+                y = driven_matrix[:, i]
+                lin_reg.fit(poly_x, y)
+                print(channels[i] + "--------------")
+                print(lin_reg.intercept_, lin_reg.coef_)
+                y_new = lin_reg.predict(poly_x)
+                print('MSE:', mean_squared_error(y, y_new))
+
+        process_bar.stop_progress_bar()
