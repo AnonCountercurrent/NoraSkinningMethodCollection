@@ -113,11 +113,11 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             return
         process_bar.set_progress_bar_value(3)
 
-        if False:
+        if True:
             df = pd.DataFrame(driven_matrix)
-            df.to_csv(r"C:\Users\Administrator\Downloads\driven_matrix.csv")
+            df.to_csv(get_document_path() + r"\driven_matrix.csv")
             df = pd.DataFrame(driver_matrix)
-            df.to_csv(r"C:\Users\Administrator\Downloads\driver_matrix.csv")
+            df.to_csv(get_document_path() + r"\driver_matrix.csv")
 
         lin_reg = LinearRegression()
         degree = self.degree_widget.number
