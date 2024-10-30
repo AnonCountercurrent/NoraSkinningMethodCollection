@@ -19,7 +19,7 @@
      <x>20</x>
      <y>10</y>
      <width>411</width>
-     <height>43</height>
+     <height>72</height>
     </rect>
    </property>
    <layout class="QVBoxLayout" name="loadDriverConfigLayout">
@@ -34,6 +34,13 @@
      <widget class="QPushButton" name="pushButton">
       <property name="text">
        <string>加载驱动配置</string>
+      </property>
+     </widget>
+    </item>
+    <item>
+     <widget class="QPushButton" name="frameRangeButton">
+      <property name="text">
+       <string>基于驱动配置设置帧数范围</string>
       </property>
      </widget>
     </item>

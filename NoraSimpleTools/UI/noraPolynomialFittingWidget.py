@@ -15,15 +15,15 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QFont, QFontDatabase, QGradient, QIcon,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
-from PySide6.QtWidgets import (QApplication, QDialog, QFrame, QGroupBox,
-    QHBoxLayout, QPushButton, QSizePolicy, QVBoxLayout,
-    QWidget)
+from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QFrame,
+    QGroupBox, QHBoxLayout, QPushButton, QSizePolicy,
+    QVBoxLayout, QWidget)
 
 class Ui_noraPolynomialFittingWidget(object):
     def setupUi(self, noraPolynomialFittingWidget):
         if not noraPolynomialFittingWidget.objectName():
             noraPolynomialFittingWidget.setObjectName(u"noraPolynomialFittingWidget")
-        noraPolynomialFittingWidget.resize(541, 497)
+        noraPolynomialFittingWidget.resize(540, 497)
         self.verticalLayout_4 = QVBoxLayout(noraPolynomialFittingWidget)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.baseGroupBox = QGroupBox(noraPolynomialFittingWidget)
@@ -61,6 +61,15 @@ class Ui_noraPolynomialFittingWidget(object):
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.driverLayout = QVBoxLayout()
         self.driverLayout.setObjectName(u"driverLayout")
+        self.radiansCheckBox = QCheckBox(self.settingsGroupBox)
+        self.radiansCheckBox.setObjectName(u"radiansCheckBox")
+        self.radiansCheckBox.setStyleSheet(u"QCheckBox {\n"
+"    color:#eff0f1;\n"
+"}")
+        self.radiansCheckBox.setChecked(True)
+
+        self.driverLayout.addWidget(self.radiansCheckBox)
+
 
         self.verticalLayout_2.addLayout(self.driverLayout)
 
@@ -94,6 +103,7 @@ class Ui_noraPolynomialFittingWidget(object):
         noraPolynomialFittingWidget.setWindowTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Dialog", None))
         self.baseGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Targets", None))
         self.settingsGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Settings", None))
+        self.radiansCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u65cb\u8f6c\u901a\u9053\u503c\u4f7f\u7528\u5f27\u5ea6", None))
         self.groupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Actions", None))
         self.generateButton.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u4fe1\u606f", None))
     # retranslateUi

@@ -25,7 +25,7 @@ class Ui_noraLoadDriverConfigDialog(object):
         noraLoadDriverConfigDialog.resize(519, 366)
         self.verticalLayoutWidget = QWidget(noraLoadDriverConfigDialog)
         self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(20, 10, 411, 43))
+        self.verticalLayoutWidget.setGeometry(QRect(20, 10, 411, 72))
         self.loadDriverConfigLayout = QVBoxLayout(self.verticalLayoutWidget)
         self.loadDriverConfigLayout.setObjectName(u"loadDriverConfigLayout")
         self.loadDriverConfigLayout.setContentsMargins(0, 0, 0, 0)
@@ -39,6 +39,11 @@ class Ui_noraLoadDriverConfigDialog(object):
 
         self.loadDriverConfigLayout.addWidget(self.pushButton)
 
+        self.frameRangeButton = QPushButton(self.verticalLayoutWidget)
+        self.frameRangeButton.setObjectName(u"frameRangeButton")
+
+        self.loadDriverConfigLayout.addWidget(self.frameRangeButton)
+
 
         self.retranslateUi(noraLoadDriverConfigDialog)
 
@@ -49,5 +54,6 @@ class Ui_noraLoadDriverConfigDialog(object):
         noraLoadDriverConfigDialog.setWindowTitle(QCoreApplication.translate("noraLoadDriverConfigDialog", u"Dialog", None))
         self.label.setText(QCoreApplication.translate("noraLoadDriverConfigDialog", u"Driver Info: None", None))
         self.pushButton.setText(QCoreApplication.translate("noraLoadDriverConfigDialog", u"\u52a0\u8f7d\u9a71\u52a8\u914d\u7f6e", None))
+        self.frameRangeButton.setText(QCoreApplication.translate("noraLoadDriverConfigDialog", u"\u57fa\u4e8e\u9a71\u52a8\u914d\u7f6e\u8bbe\u7f6e\u5e27\u6570\u8303\u56f4", None))
     # retranslateUi
 

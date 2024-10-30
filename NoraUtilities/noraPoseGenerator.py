@@ -810,7 +810,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         if combination:
             # 设置时间线
             end_frame = start_frame + generate_frame_num
-            cmds.playbackOptions(minTime=0, maxTime=end_frame)
+            cmds.playbackOptions(animationStartTime=0, animationEndTime=end_frame, minTime=0, maxTime=end_frame)
 
             # 插值生成
             channels_value_array = []
@@ -843,7 +843,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         else:
             # 设置时间线
             end_frame = start_frame + frame_num
-            cmds.playbackOptions(minTime=0, maxTime=end_frame)
+            cmds.playbackOptions(animationStartTime=0, animationEndTime=end_frame, minTime=0, maxTime=end_frame)
 
             # 生成组字典 {group_name, [int]}，用于设置是否随机
             group_dict = dict()

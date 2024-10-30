@@ -34,7 +34,7 @@ def get_width():
 
 
 def get_height():
-    return 450
+    return 580
 
 
 def get_use_custom_front_style():
@@ -61,7 +61,7 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         self.frameSetLayout.addWidget(self.rest_frame_widget)
 
         self.degree_widget = noraIntNumber.NoraIntNumber()
-        self.degree_widget.label.setText("Degree-N: ")
+        self.degree_widget.label.setText("多项式的度: ")
         self.degree_widget.intNumber.setMinimum(1)
         self.degree_widget.intNumber.setMaximum(6)
         self.degree_widget.intNumber.setValue(2)
@@ -72,7 +72,7 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         self.driverLayout.addWidget(self.driver_info_widget)
 
         self.driven_list_widget = noraChannelList.NoraChannelList()
-        self.driven_list_widget.label.setText("Driven List: ")
+        self.driven_list_widget.label.setText("被驱动列表: ")
         self.driverLayout.addWidget(self.driven_list_widget)
 
         # 事件绑定
@@ -102,18 +102,19 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             return
         process_bar.set_progress_bar_value(1)
 
-        driver_matrix = self.driver_info_widget.get_matrix(start_frame, end_frame)
+        radians = self.radiansCheckBox.isChecked()
+        driver_matrix = self.driver_info_widget.get_matrix(start_frame, end_frame, radians)
         if driver_matrix is None:
             process_bar.stop_progress_bar()
             return
         process_bar.set_progress_bar_value(2)
 
-        driven_matrix = get_channel_matrix(channels, start_frame, end_frame)
+        driven_matrix = get_channel_matrix(channels, start_frame, end_frame, radians)
         if process_bar.is_progress_bar_cancelled():
             return
         process_bar.set_progress_bar_value(3)
 
-        if True:
+        if False:
             df = pd.DataFrame(driven_matrix)
             df.to_csv(get_document_path() + r"\driven_matrix.csv")
             df = pd.DataFrame(driver_matrix)

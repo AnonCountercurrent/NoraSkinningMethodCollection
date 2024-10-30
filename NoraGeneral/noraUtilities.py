@@ -107,11 +107,24 @@ def get_attribute_values(attribute_name, node_name):
     return default_value, min_value, max_value
 
 
-def get_channel_matrix(attribute_names, start_frame: int, end_frame: int):
+def is_rotation_attribute(full_name: str):
+    """
+    检查参数是不是旋转参数
+    """
+    if full_name.split('.')[1] in ["rotateX", "rotateY", "rotateZ"]:
+        return True
+    else:
+        return False
+
+
+def get_channel_matrix(attribute_names, start_frame: int, end_frame: int, radians: bool):
     """
     获取参数矩阵 frame x channel
     """
     channel_num = len(attribute_names)
+    angular_channel_list = []
+    for i in range(channel_num):
+        angular_channel_list.append(is_rotation_attribute(attribute_names[i]))
     frame_num = end_frame - start_frame
     channel_matrix = np.empty((frame_num, channel_num), dtype=float)
     cached_current_time = oma.MAnimControl.currentTime()
@@ -119,7 +132,10 @@ def get_channel_matrix(attribute_names, start_frame: int, end_frame: int):
         t = i + start_frame
         oma.MAnimControl.setCurrentTime(om.MTime(t))
         for j in range(channel_num):
-            channel_matrix[i, j] = float(cmds.getAttr(attribute_names[j]))
+            if radians and angular_channel_list[j]:
+                channel_matrix[i, j] = float(math.radians(cmds.getAttr(attribute_names[j])))
+            else:
+                channel_matrix[i, j] = float(cmds.getAttr(attribute_names[j]))
     oma.MAnimControl.setCurrentTime(cached_current_time)
     return channel_matrix
 
