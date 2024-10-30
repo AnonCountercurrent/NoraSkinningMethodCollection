@@ -20,7 +20,7 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
         self.open_icon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogOpenButton"))
         self.pushButton.setIcon(self.open_icon)
 
-        self.label.setText("驱动信息: None")
+        self.label.setText("驱动信息：None")
         self.config = None
         self.pushButton.clicked.connect(self.load_config)
         self.frameRangeButton.clicked.connect(self.set_frame_range)
@@ -56,7 +56,7 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
             channel_limit = json_data['channel_min_max_values']
             for c in channel_limit:
                 self.config.channel_min_max_values.append(noraPoseGenerator.NoraChannelMinMaxValue(**c))
-            self.label.setText("驱动信息: " + str(len(channels_list)) + " channels")
+            self.label.setText("驱动信息：" + str(len(channels_list)) + " channels")
 
     def set_frame_range(self):
         """

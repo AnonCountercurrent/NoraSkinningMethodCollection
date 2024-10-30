@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>540</width>
-    <height>497</height>
+    <width>617</width>
+    <height>580</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -59,6 +59,51 @@
           </property>
           <property name="text">
            <string>旋转通道值使用弧度</string>
+          </property>
+          <property name="checked">
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="csvCheckBox">
+          <property name="styleSheet">
+           <string notr="true">QCheckBox {
+    color:#eff0f1;
+}</string>
+          </property>
+          <property name="text">
+           <string>生成驱动数据表到文档</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="printCheckBox">
+          <property name="styleSheet">
+           <string notr="true">QCheckBox {
+    color:#eff0f1;
+}</string>
+          </property>
+          <property name="text">
+           <string>打印参数</string>
+          </property>
+          <property name="checked">
+           <bool>false</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QCheckBox" name="genDriverNodeCheckBox">
+          <property name="styleSheet">
+           <string notr="true">QCheckBox {
+    color:#eff0f1;
+}</string>
+          </property>
+          <property name="text">
+           <string>生成驱动节点</string>
           </property>
           <property name="checked">
            <bool>true</bool>

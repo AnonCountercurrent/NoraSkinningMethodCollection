@@ -23,7 +23,7 @@ class Ui_noraPolynomialFittingWidget(object):
     def setupUi(self, noraPolynomialFittingWidget):
         if not noraPolynomialFittingWidget.objectName():
             noraPolynomialFittingWidget.setObjectName(u"noraPolynomialFittingWidget")
-        noraPolynomialFittingWidget.resize(540, 497)
+        noraPolynomialFittingWidget.resize(617, 580)
         self.verticalLayout_4 = QVBoxLayout(noraPolynomialFittingWidget)
         self.verticalLayout_4.setObjectName(u"verticalLayout_4")
         self.baseGroupBox = QGroupBox(noraPolynomialFittingWidget)
@@ -70,6 +70,33 @@ class Ui_noraPolynomialFittingWidget(object):
 
         self.driverLayout.addWidget(self.radiansCheckBox)
 
+        self.csvCheckBox = QCheckBox(self.settingsGroupBox)
+        self.csvCheckBox.setObjectName(u"csvCheckBox")
+        self.csvCheckBox.setStyleSheet(u"QCheckBox {\n"
+"    color:#eff0f1;\n"
+"}")
+        self.csvCheckBox.setChecked(False)
+
+        self.driverLayout.addWidget(self.csvCheckBox)
+
+        self.printCheckBox = QCheckBox(self.settingsGroupBox)
+        self.printCheckBox.setObjectName(u"printCheckBox")
+        self.printCheckBox.setStyleSheet(u"QCheckBox {\n"
+"    color:#eff0f1;\n"
+"}")
+        self.printCheckBox.setChecked(False)
+
+        self.driverLayout.addWidget(self.printCheckBox)
+
+        self.genDriverNodeCheckBox = QCheckBox(self.settingsGroupBox)
+        self.genDriverNodeCheckBox.setObjectName(u"genDriverNodeCheckBox")
+        self.genDriverNodeCheckBox.setStyleSheet(u"QCheckBox {\n"
+"    color:#eff0f1;\n"
+"}")
+        self.genDriverNodeCheckBox.setChecked(True)
+
+        self.driverLayout.addWidget(self.genDriverNodeCheckBox)
+
 
         self.verticalLayout_2.addLayout(self.driverLayout)
 
@@ -104,6 +131,9 @@ class Ui_noraPolynomialFittingWidget(object):
         self.baseGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Targets", None))
         self.settingsGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Settings", None))
         self.radiansCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u65cb\u8f6c\u901a\u9053\u503c\u4f7f\u7528\u5f27\u5ea6", None))
+        self.csvCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u6570\u636e\u8868\u5230\u6587\u6863", None))
+        self.printCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u6253\u5370\u53c2\u6570", None))
+        self.genDriverNodeCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u8282\u70b9", None))
         self.groupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Actions", None))
         self.generateButton.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u4fe1\u606f", None))
     # retranslateUi

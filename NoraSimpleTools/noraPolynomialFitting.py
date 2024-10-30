@@ -13,12 +13,14 @@ from NoraGeneral import noraFrameRange
 from NoraGeneral import noraIntNumber
 from NoraGeneral import noraLoadDriverConfig
 from NoraGeneral import noraChannelList
+from NoraSimpleTools import noraPolynomialFittingNode
 
 reload(noraPolynomialFittingWidget)
 reload(noraMDagObjectSelect)
 reload(noraFrameRange)
 reload(noraLoadDriverConfig)
 reload(noraChannelList)
+reload(noraPolynomialFittingNode)
 
 
 def get_title():
@@ -61,9 +63,9 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         self.frameSetLayout.addWidget(self.rest_frame_widget)
 
         self.degree_widget = noraIntNumber.NoraIntNumber()
-        self.degree_widget.label.setText("多项式的度: ")
+        self.degree_widget.label.setText("多项式的度：")
         self.degree_widget.intNumber.setMinimum(1)
-        self.degree_widget.intNumber.setMaximum(6)
+        self.degree_widget.intNumber.setMaximum(16)
         self.degree_widget.intNumber.setValue(2)
         self.degree_widget.value_changed()
         self.driverLayout.addWidget(self.degree_widget)
@@ -72,7 +74,7 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         self.driverLayout.addWidget(self.driver_info_widget)
 
         self.driven_list_widget = noraChannelList.NoraChannelList()
-        self.driven_list_widget.label.setText("被驱动列表: ")
+        self.driven_list_widget.label.setText("被驱动列表：")
         self.driverLayout.addWidget(self.driven_list_widget)
 
         # 事件绑定
@@ -90,7 +92,7 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             return
 
         process_bar = NoraProgressBar()
-        process_bar.start_progress_bar(max_value=3+channel_num)
+        process_bar.start_progress_bar(max_value=4+channel_num)
 
         channels = []
         for i in range(channel_num):
@@ -114,11 +116,13 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             return
         process_bar.set_progress_bar_value(3)
 
-        if False:
+        if self.csvCheckBox.isChecked():
             df = pd.DataFrame(driven_matrix)
             df.to_csv(get_document_path() + r"\driven_matrix.csv")
             df = pd.DataFrame(driver_matrix)
             df.to_csv(get_document_path() + r"\driver_matrix.csv")
+
+        process_bar.set_progress_bar_value(4)
 
         lin_reg = LinearRegression()
         degree = self.degree_widget.number
