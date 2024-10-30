@@ -17,6 +17,9 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
         self.setupUi(self)
         self.setLayout(self.loadDriverConfigLayout)
 
+        self.open_icon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogOpenButton"))
+        self.pushButton.setIcon(self.open_icon)
+
         self.label.setText("驱动信息: None")
         self.config = None
         self.pushButton.clicked.connect(self.load_config)

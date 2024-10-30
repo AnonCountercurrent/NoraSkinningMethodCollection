@@ -22,7 +22,7 @@ class Ui_noraMainWindow(object):
     def setupUi(self, noraMainWindow):
         if not noraMainWindow.objectName():
             noraMainWindow.setObjectName(u"noraMainWindow")
-        noraMainWindow.resize(495, 568)
+        noraMainWindow.resize(495, 767)
         noraMainWindow.setWindowTitle(u"NoraSMC")
         noraMainWindow.setStyleSheet(u"")
         self.verticalLayout = QVBoxLayout(noraMainWindow)

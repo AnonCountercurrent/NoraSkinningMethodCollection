@@ -50,6 +50,10 @@ class NoraPoseGenerator(QtWidgets.QDialog, noraPoseGeneratorWidget.Ui_noraPoseGe
         self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.Window)
 
+        # 图标
+        self.open_icon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_TitleBarMaxButton"))
+        self.openPoseGenerator.setIcon(self.open_icon)
+
         # 成员
         self.pose_gen_win = None
 
