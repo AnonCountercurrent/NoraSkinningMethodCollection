@@ -10,6 +10,7 @@ from shiboken6 import wrapInstance
 from PySide6 import QtWidgets
 import math
 
+nora_scalar_type = np.float64
 
 class JointLimit:
     """
@@ -117,6 +118,17 @@ def is_rotation_attribute(full_name: str):
         return False
 
 
+def maya_double_array_to_ndarray(double_array):
+    """
+    用 MDoubleArray 创建 np.ndarray
+    """
+    length = len(double_array)
+    np_array = np.empty(length, dtype=nora_scalar_type)
+    for i in range(length):
+        np_array[i] = double_array[i]
+    return np_array
+
+
 def get_channel_matrix(attribute_names, start_frame: int, end_frame: int, radians: bool):
     """
     获取参数矩阵 frame x channel
@@ -126,7 +138,7 @@ def get_channel_matrix(attribute_names, start_frame: int, end_frame: int, radian
     for i in range(channel_num):
         angular_channel_list.append(is_rotation_attribute(attribute_names[i]))
     frame_num = end_frame - start_frame
-    channel_matrix = np.empty((frame_num, channel_num), dtype=float)
+    channel_matrix = np.empty((frame_num, channel_num), dtype=nora_scalar_type)
     cached_current_time = oma.MAnimControl.currentTime()
     for i in range(frame_num):
         t = i + start_frame

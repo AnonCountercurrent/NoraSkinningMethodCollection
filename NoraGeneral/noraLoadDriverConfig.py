@@ -87,7 +87,7 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
         if channel_num == 0:
             return None
         frame_num = end_frame - start_frame
-        channel_matrix = np.empty((frame_num, channel_num), dtype=float)
+        channel_matrix = np.empty((frame_num, channel_num), dtype=nora_scalar_type)
         cached_current_time = oma.MAnimControl.currentTime()
         angular_channel_list = []
         for i in range(channel_num):
@@ -102,3 +102,17 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
                     channel_matrix[i, j] = float(cmds.getAttr(self.config.channels[j].name))
         oma.MAnimControl.setCurrentTime(cached_current_time)
         return channel_matrix
+
+    def get_channel_names(self):
+        """
+        获取通道名数组
+        """
+        if self.config is None:
+            print("error: driver config is None")
+            return None
+        channel_names = []
+        channel_num = len(self.config.channels)
+        for i in range(channel_num):
+            channel_names.append(self.config.channels[i].name)
+        return channel_names
+

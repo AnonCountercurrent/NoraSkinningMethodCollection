@@ -809,7 +809,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
 
         # 数据生成
         key_times = om.MTimeArray()
-        channel_values = np.empty((generate_frame_num, channel_num), dtype=float)
+        channel_values = np.empty((generate_frame_num, channel_num), dtype=nora_scalar_type)
         # 组合
         if combination:
             # 设置时间线
@@ -869,13 +869,13 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
             gauss_width = None
             if gauss:
                 gauss_centre_iter = ((channels[c_idx].max_value + channels[c_idx].min_value) * 0.5 for c_idx in range(channel_num))
-                gauss_centre = np.fromiter(gauss_centre_iter, dtype=float)
+                gauss_centre = np.fromiter(gauss_centre_iter, dtype=nora_scalar_type)
                 gauss_width_iter = (abs(channels[c_idx].max_value - channels[c_idx].min_value) * gauss_sigma for c_idx in range(channel_num))
-                gauss_width = np.fromiter(gauss_width_iter, dtype=float)
+                gauss_width = np.fromiter(gauss_width_iter, dtype=nora_scalar_type)
             uniform_low_iter = (channels[c_idx].min_value for c_idx in range(channel_num))
-            uniform_low = np.fromiter(uniform_low_iter, dtype=float)
+            uniform_low = np.fromiter(uniform_low_iter, dtype=nora_scalar_type)
             uniform_high_iter = (channels[c_idx].max_value for c_idx in range(channel_num))
-            uniform_high = np.fromiter(uniform_high_iter, dtype=float)
+            uniform_high = np.fromiter(uniform_high_iter, dtype=nora_scalar_type)
 
             # 取消节点
             if self.process_bar.is_progress_bar_cancelled():

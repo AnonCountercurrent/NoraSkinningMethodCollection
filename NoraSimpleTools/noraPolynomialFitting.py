@@ -14,6 +14,7 @@ from NoraGeneral import noraIntNumber
 from NoraGeneral import noraLoadDriverConfig
 from NoraGeneral import noraChannelList
 from NoraSimpleTools import noraPolynomialFittingNode
+from NoraSimpleTools.noraPolynomialFittingNode import NoraPolynomialFittingNode
 
 reload(noraPolynomialFittingWidget)
 reload(noraMDagObjectSelect)
@@ -81,19 +82,23 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         self.generateButton.clicked.connect(self.generate)
 
     def generate(self):
+        # 帧数范围
         start_frame = self.frame_range_widget.start_frame
         end_frame = self.frame_range_widget.end_frame
+        rest_frame = self.rest_frame_widget.number
         if start_frame >= end_frame:
             print("error: start_frame >= end_frame")
+            return
+        if rest_frame < start_frame or rest_frame >= end_frame:
+            print("error: rest_frame < start_frame or rest_frame >= end_frame")
             return
         channel_num = self.driven_list_widget.listWidget.count()
         if channel_num == 0:
             print("error: driven list is empty")
             return
-
         process_bar = NoraProgressBar()
-        process_bar.start_progress_bar(max_value=4+channel_num)
-
+        process_bar.start_progress_bar(max_value=4 + channel_num)
+        # 被驱动channel列表
         channels = []
         for i in range(channel_num):
             item = self.driven_list_widget.listWidget.item(i)
@@ -103,48 +108,39 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             process_bar.stop_progress_bar()
             return
         process_bar.set_progress_bar_value(1)
-
+        # 驱动数据
         radians = self.radiansCheckBox.isChecked()
         driver_matrix = self.driver_info_widget.get_matrix(start_frame, end_frame, radians)
         if driver_matrix is None:
             process_bar.stop_progress_bar()
             return
+        driver_channels = self.driver_info_widget.get_channel_names()
         process_bar.set_progress_bar_value(2)
-
+        # 被驱动标记
         driven_matrix = get_channel_matrix(channels, start_frame, end_frame, radians)
         if process_bar.is_progress_bar_cancelled():
             return
         process_bar.set_progress_bar_value(3)
-
+        # 输出标记到CSV观测
         if self.csvCheckBox.isChecked():
             df = pd.DataFrame(driven_matrix)
             df.to_csv(get_document_path() + r"\driven_matrix.csv")
             df = pd.DataFrame(driver_matrix)
             df.to_csv(get_document_path() + r"\driver_matrix.csv")
-
         process_bar.set_progress_bar_value(4)
-
+        # 线性回归
         lin_reg = LinearRegression()
         degree = self.degree_widget.number
-        if degree == 1:
-            for i in range(channel_num):
-                process_bar.set_progress_bar_value(3 + i)
-                y = driven_matrix[:, i]
-                lin_reg.fit(driver_matrix, y)
-                print(channels[i] + "--------------")
-                print(lin_reg.intercept_, lin_reg.coef_)
-                y_new = lin_reg.predict(driver_matrix)
-                print('MSE:', mean_squared_error(y, y_new))
-        else:
-            poly_features = PolynomialFeatures(degree=degree, include_bias=False)
-            poly_x = poly_features.fit_transform(driver_matrix)
-            for i in range(channel_num):
-                process_bar.set_progress_bar_value(3 + i)
-                y = driven_matrix[:, i]
-                lin_reg.fit(poly_x, y)
-                print(channels[i] + "--------------")
-                print(lin_reg.intercept_, lin_reg.coef_)
-                y_new = lin_reg.predict(poly_x)
-                print('MSE:', mean_squared_error(y, y_new))
-
+        poly_features = PolynomialFeatures(degree=degree, include_bias=False)
+        poly_x = poly_features.fit_transform(driver_matrix)
+        for i in range(channel_num):
+            process_bar.set_progress_bar_value(4 + i)
+            y = driven_matrix[:, i]
+            lin_reg.fit(poly_x, y)
+            print(channels[i] + "--------------")
+            print(lin_reg.intercept_, lin_reg.coef_)
+            y_new = lin_reg.predict(poly_x)
+            print('MSE:', mean_squared_error(y, y_new))
+            if self.genDriverNodeCheckBox.isChecked():
+                NoraPolynomialFittingNode.custom_create_node(driver_channels, channels[i], degree, driven_matrix[rest_frame, i], lin_reg.intercept_, lin_reg.coef_)
         process_bar.stop_progress_bar()
