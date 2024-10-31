@@ -94,7 +94,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
             for i in range(input_value_num):
                 radians_data.jumpToLogicalElement(i)
                 input_values_data.jumpToLogicalElement(i)
-                if radians_data[i].inputValue().asBool():
+                if radians_data.inputValue().asBool():
                     input_values[0, i] = math.radians(input_values_data.inputValue().asDouble())
                 else:
                     input_values[0, i] = input_values_data.inputValue().asDouble()

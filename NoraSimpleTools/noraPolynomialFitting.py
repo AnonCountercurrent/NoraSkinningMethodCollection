@@ -142,5 +142,5 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             y_new = lin_reg.predict(poly_x)
             print('MSE:', mean_squared_error(y, y_new))
             if self.genDriverNodeCheckBox.isChecked():
-                NoraPolynomialFittingNode.custom_create_node(driver_channels, channels[i], degree, driven_matrix[rest_frame, i], lin_reg.intercept_, lin_reg.coef_)
+                NoraPolynomialFittingNode.custom_create_node(driver_channels, channels[i], degree, driven_matrix[rest_frame, i], lin_reg.intercept_, lin_reg.coef_, radians)
         process_bar.stop_progress_bar()
