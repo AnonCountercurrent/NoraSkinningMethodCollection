@@ -8,7 +8,7 @@ import numpy as np
 
 class NoraPolynomialFittingNode(om.MPxNode):
     id = om.MTypeId(0x00088601)
-    inActive = om.MObject()
+    inActivated = om.MObject()
     inDefaultValue = om.MObject()
     inDegree = om.MObject()
     inIntercept = om.MObject()
@@ -25,7 +25,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
     def initialize():
         # input
         n_attr = om.MFnNumericAttribute()
-        NoraPolynomialFittingNode.inActive = n_attr.create("active", "ac", om.MFnNumericData.kBoolean, False)
+        NoraPolynomialFittingNode.inActivated = n_attr.create("activated", "ac", om.MFnNumericData.kBoolean, False)
         NoraPolynomialFittingNode.inDefaultValue = n_attr.create("defaultValue", "dv", om.MFnNumericData.kDouble, 0.0)
         NoraPolynomialFittingNode.inDegree = n_attr.create("degree", "deg", om.MFnNumericData.kInt, 1)
         n_attr.setMin(1)
@@ -46,7 +46,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
         n_attr = om.MFnNumericAttribute()
         NoraPolynomialFittingNode.outValue = n_attr.create("outputValue", "out", om.MFnNumericData.kDouble, 0.0)
         # add attributes
-        NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inActive)
+        NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inActivated)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inDefaultValue)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inDegree)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inIntercept)
@@ -55,15 +55,15 @@ class NoraPolynomialFittingNode(om.MPxNode):
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inValues)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.outValue)
         NoraPolynomialFittingNode.attributeAffects(NoraPolynomialFittingNode.inValues, NoraPolynomialFittingNode.outValue)
-        NoraPolynomialFittingNode.attributeAffects(NoraPolynomialFittingNode.inActive, NoraPolynomialFittingNode.outValue)
+        NoraPolynomialFittingNode.attributeAffects(NoraPolynomialFittingNode.inActivated, NoraPolynomialFittingNode.outValue)
 
     def __init__(self):
         om.MPxNode.__init__(self)
 
     def compute(self, plug:om.MPlug, data:om.MDataBlock):
-        if plug == NoraPolynomialFittingNode.outValue:
+        if plug == NoraPolynomialFittingNode.outValue or plug == NoraPolynomialFittingNode.inActivated:
             # 输入和数据
-            active_data = data.inputValue(NoraPolynomialFittingNode.inActive) # MDataHandle
+            active_data = data.inputValue(NoraPolynomialFittingNode.inActivated) # MDataHandle
             default_data = data.inputValue(NoraPolynomialFittingNode.inDefaultValue)
             degree_data = data.inputValue(NoraPolynomialFittingNode.inDegree)
             intercept_data = data.inputValue(NoraPolynomialFittingNode.inIntercept)
@@ -132,4 +132,4 @@ class NoraPolynomialFittingNode(om.MPxNode):
         cmds.setAttr(f"{node_name}.intercept", intercept)
         for i in range(coefficients.size):
             cmds.setAttr(f"{node_name}.coefficients[{i}]", coefficients[i])
-        cmds.setAttr(f"{node_name}.active", True)
+        cmds.setAttr(f"{node_name}.activated", True)
