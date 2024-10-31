@@ -33,7 +33,7 @@ def create_by_link():
 
 
 def docs_link():
-    webbrowser.open("http://www.baidu.com")
+    webbrowser.open("https://github.com/AnonCountercurrent/NoraSkinningMethodCollection")
 
 
 class NoraHelp(QtWidgets.QDialog, Ui_noraHelpWidget):
