@@ -106,13 +106,18 @@ def split_float(in_float_value, max_value = 1000000.0):
             break
     return current_value, factor
 
+
 def get_split_float_str(in_float_value, max_value = 1000000.0):
+    """
+    用于复制到UE，将一个浮点数拆分为一个 f 和系数 c， c * f = in_float_value
+    """
     f1, f2 = split_float(in_float_value, max_value)
     if f2 == 0:
         f2 = 1
     else:
         f2 = 1.0 / pow(10, f2)
     return f"(X={f1:.10f},Y={f2:.10f})"
+
 
 def replace_fbx_asc_xxx(origin_str, force_hyphen=False):
     """
