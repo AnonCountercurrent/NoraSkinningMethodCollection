@@ -91,6 +91,48 @@ def get_dg_node_by_name(node_name):
     return om.MFnDependencyNode(node_obj)
 
 
+def split_float(in_float_value, max_value = 1000000.0):
+    """
+    将一个浮点数拆分为一个 浮点数 f 和一个除数 i， f/i = in_float_value
+    """
+    factor = int(0)
+    current_value = in_float_value
+    while True:
+        new_value = in_float_value * pow(10, factor + 1)
+        if new_value < max_value and factor < 6:
+            factor += 1
+            current_value = new_value
+        else:
+            break
+    return current_value, factor
+
+def get_split_float_str(in_float_value, max_value = 1000000.0):
+    f1, f2 = split_float(in_float_value, max_value)
+    if f2 == 0:
+        f2 = 1
+    else:
+        f2 = 1.0 / pow(10, f2)
+    return f"(X={f1:.10f},Y={f2:.10f})"
+
+def replace_fbx_asc_xxx(origin_str, force_hyphen=False):
+    """
+    Bip001FBXASC032RLFBXASC032Calf to Bip001-RL-Calf
+    """
+    out_str = str(origin_str)
+    begin_index = 0
+    while True:
+        find_index = out_str.find('FBXASC', begin_index)
+        if find_index == -1:
+            break
+        acs_code = out_str[find_index + 6 : find_index + 9]
+        chr_str = str(chr(int(acs_code)))
+        if force_hyphen:
+            chr_str = '-'
+        out_str = out_str[0:find_index] + chr_str + out_str[find_index + 9:]
+        begin_index = find_index + 1
+    return out_str
+
+
 def get_attribute_values(attribute_name, node_name):
     """
     :return: 默认值，最小值，最大值

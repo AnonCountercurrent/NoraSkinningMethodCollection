@@ -79,15 +79,6 @@ class Ui_noraPolynomialFittingWidget(object):
 
         self.driverLayout.addWidget(self.csvCheckBox)
 
-        self.printCheckBox = QCheckBox(self.settingsGroupBox)
-        self.printCheckBox.setObjectName(u"printCheckBox")
-        self.printCheckBox.setStyleSheet(u"QCheckBox {\n"
-"    color:#eff0f1;\n"
-"}")
-        self.printCheckBox.setChecked(False)
-
-        self.driverLayout.addWidget(self.printCheckBox)
-
         self.genDriverNodeCheckBox = QCheckBox(self.settingsGroupBox)
         self.genDriverNodeCheckBox.setObjectName(u"genDriverNodeCheckBox")
         self.genDriverNodeCheckBox.setStyleSheet(u"QCheckBox {\n"
@@ -114,6 +105,11 @@ class Ui_noraPolynomialFittingWidget(object):
 
         self.verticalLayout_3.addWidget(self.generateButton)
 
+        self.printPushButton = QPushButton(self.groupBox)
+        self.printPushButton.setObjectName(u"printPushButton")
+
+        self.verticalLayout_3.addWidget(self.printPushButton)
+
 
         self.horizontalLayout.addLayout(self.verticalLayout_3)
 
@@ -132,9 +128,9 @@ class Ui_noraPolynomialFittingWidget(object):
         self.settingsGroupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Settings", None))
         self.radiansCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u65cb\u8f6c\u901a\u9053\u503c\u4f7f\u7528\u5f27\u5ea6", None))
         self.csvCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u6570\u636e\u8868\u5230\u6587\u6863", None))
-        self.printCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u6253\u5370\u53c2\u6570", None))
         self.genDriverNodeCheckBox.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u8282\u70b9", None))
         self.groupBox.setTitle(QCoreApplication.translate("noraPolynomialFittingWidget", u"Actions", None))
         self.generateButton.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u751f\u6210\u9a71\u52a8\u4fe1\u606f", None))
+        self.printPushButton.setText(QCoreApplication.translate("noraPolynomialFittingWidget", u"\u6253\u5370\u9009\u4e2d\u7269\u4f53\u7684\u9a71\u52a8\u53c2\u6570", None))
     # retranslateUi
 

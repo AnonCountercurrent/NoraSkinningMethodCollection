@@ -77,6 +77,7 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
 
         # 事件绑定
         self.generateButton.clicked.connect(self.generate)
+        self.printPushButton.clicked.connect(self.print_coefficients)
 
     def generate(self):
         # 帧数范围
@@ -134,12 +135,14 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             process_bar.set_progress_bar_value(4 + i)
             y = driven_matrix[:, i]
             lin_reg.fit(poly_x, y)
-            print(channels[i] + "--------------")
-            print(lin_reg.intercept_, lin_reg.coef_)
             y_new = lin_reg.predict(poly_x)
+            print(channels[i] + "--------------")
             print('MSE:', mean_squared_error(y, y_new))
+            print('intercept:', lin_reg.intercept_)
+            print('coefficients:', lin_reg.coef_)
             if self.genDriverNodeCheckBox.isChecked():
                 self.custom_create_node(driver_channels, channels[i], degree, driven_matrix[rest_frame, i], lin_reg.intercept_, lin_reg.coef_, radians)
+
         process_bar.stop_progress_bar()
 
     @staticmethod
@@ -205,3 +208,38 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         # 执行
         dg_node.findPlug("activated", False).setBool(True)
         dg_modifier.doIt()
+
+    @staticmethod
+    def print_coefficients(self):
+        selected_objects = cmds.ls(selection=True, long=True, objectsOnly=True)
+        for obj in selected_objects:
+            channels = cmds.listAttr(obj, keyable=True, scalar=True, visible=True, settable=True, inUse=True)
+            if channels:
+                for long_channel_name in channels:
+                    full_path_name = obj + '.' + long_channel_name
+                    # 跳过上锁的
+                    locked = cmds.getAttr(full_path_name, lock=True)
+                    if locked:
+                        continue
+                    # Channel是否连接到了 dg node noraPolynomialFitting
+                    connected_nodes = cmds.listConnections(full_path_name, source=True, destination=False, plugs=True)
+                    if connected_nodes:
+                        for node in connected_nodes:
+                            # 检查节点类型是否是 noraPolynomialFitting
+                            node_name, attr = node.split('.', 1)
+                            if cmds.nodeType(node_name) == 'noraPolynomialFitting':
+                                print(replace_fbx_asc_xxx(get_short_name(obj), True) + '.' + long_channel_name)
+                                print("intercept: " + get_split_float_str(cmds.getAttr(node_name + ".intercept")))
+                                coef_indices = cmds.getAttr(node_name + ".coefficients", multiIndices=True)
+                                if coef_indices is None:
+                                    print("coefficients: None")
+                                    continue
+                                coef_num = len(coef_indices)
+                                coefficients_str = "("
+                                for i in range(coef_num):
+                                    coefficients_str += get_split_float_str(cmds.getAttr(node_name + f".coefficients[{i}]"))
+                                    if i < coef_num - 1:
+                                        coefficients_str += ","
+                                coefficients_str += ")"
+                                print("coefficients: " + coefficients_str)
+

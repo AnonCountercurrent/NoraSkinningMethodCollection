@@ -81,21 +81,6 @@
          </widget>
         </item>
         <item>
-         <widget class="QCheckBox" name="printCheckBox">
-          <property name="styleSheet">
-           <string notr="true">QCheckBox {
-    color:#eff0f1;
-}</string>
-          </property>
-          <property name="text">
-           <string>打印参数</string>
-          </property>
-          <property name="checked">
-           <bool>false</bool>
-          </property>
-         </widget>
-        </item>
-        <item>
          <widget class="QCheckBox" name="genDriverNodeCheckBox">
           <property name="styleSheet">
            <string notr="true">QCheckBox {
@@ -127,6 +112,13 @@
          <widget class="QPushButton" name="generateButton">
           <property name="text">
            <string>生成驱动信息</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QPushButton" name="printPushButton">
+          <property name="text">
+           <string>打印选中物体的驱动参数</string>
           </property>
          </widget>
         </item>
