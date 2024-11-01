@@ -84,6 +84,13 @@ def get_selected_dag_name():
         return sel[0]
 
 
+def get_dg_node_by_name(node_name):
+    selection_list = om.MSelectionList()
+    selection_list.add(node_name)
+    node_obj = selection_list.getDependNode(0)
+    return om.MFnDependencyNode(node_obj)
+
+
 def get_attribute_values(attribute_name, node_name):
     """
     :return: 默认值，最小值，最大值

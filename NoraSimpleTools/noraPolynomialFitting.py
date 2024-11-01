@@ -13,15 +13,12 @@ from NoraGeneral import noraFrameRange
 from NoraGeneral import noraIntNumber
 from NoraGeneral import noraLoadDriverConfig
 from NoraGeneral import noraChannelList
-from NoraSimpleTools import noraPolynomialFittingNode
-from NoraSimpleTools.noraPolynomialFittingNode import NoraPolynomialFittingNode
 
 reload(noraPolynomialFittingWidget)
 reload(noraMDagObjectSelect)
 reload(noraFrameRange)
 reload(noraLoadDriverConfig)
 reload(noraChannelList)
-reload(noraPolynomialFittingNode)
 
 
 def get_title():
@@ -142,5 +139,69 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
             y_new = lin_reg.predict(poly_x)
             print('MSE:', mean_squared_error(y, y_new))
             if self.genDriverNodeCheckBox.isChecked():
-                NoraPolynomialFittingNode.custom_create_node(driver_channels, channels[i], degree, driven_matrix[rest_frame, i], lin_reg.intercept_, lin_reg.coef_, radians)
+                self.custom_create_node(driver_channels, channels[i], degree, driven_matrix[rest_frame, i], lin_reg.intercept_, lin_reg.coef_, radians)
         process_bar.stop_progress_bar()
+
+    @staticmethod
+    def custom_create_node(input_channels:list, output_channel:str, degree:int, default_value:float, intercept:float, coefficients:np.ndarray, radians=False):
+        """
+        用于创建这个节点
+        """
+        driver_num = len(input_channels)
+        # 创建节点和连线
+        node_name = cmds.createNode("noraPolynomialFitting")
+        for i in range(driver_num):
+            cmds.connectAttr(input_channels[i], f"{node_name}.inputValues[{i}]")
+            if radians and is_rotation_attribute(input_channels[i]):
+                cmds.setAttr(f"{node_name}.radians[{i}]", True)
+            else:
+                cmds.setAttr(f"{node_name}.radians[{i}]", False)
+        cmds.connectAttr(f"{node_name}.outputValue", output_channel, force=True)
+        # 数据写入
+        cmds.setAttr(f"{node_name}.defaultValue", default_value)
+        cmds.setAttr(f"{node_name}.degree", degree)
+        cmds.setAttr(f"{node_name}.intercept", intercept)
+        for i in range(coefficients.size):
+            cmds.setAttr(f"{node_name}.coefficients[{i}]", coefficients[i])
+        cmds.setAttr(f"{node_name}.activated", True)
+
+    @staticmethod
+    def custom_create_node_om(input_channels:list, output_channel:str, degree:int, default_value:float, intercept:float, coefficients:np.ndarray, radians=False):
+        dg_modifier = om.MDGModifier()
+        driver_num = len(input_channels)
+        # 创建节点
+        node_obj = dg_modifier.createNode("noraPolynomialFitting")
+        dg_node = om.MFnDependencyNode(node_obj)
+        # 数据写入
+        dg_node.findPlug("defaultValue", False).setDouble(default_value)
+        dg_node.findPlug("degree", False).setInt(degree)
+        dg_node.findPlug("intercept", False).setDouble(intercept)
+        coeff_plug = dg_node.findPlug("coefficients", False)
+        for i in range(coefficients.size):
+            coeff_plug.elementByLogicalIndex(i).setDouble(coefficients[i])
+        radians_plug = dg_node.findPlug("radians", False)
+        for i in range(driver_num):
+            if radians and is_rotation_attribute(input_channels[i]):
+                radians_plug.elementByLogicalIndex(i).setBool(True)
+            else:
+                radians_plug.elementByLogicalIndex(i).setBool(False)
+        # 连线
+        in_plug = dg_node.findPlug("inputValues", False)
+        for i in range(driver_num):
+            driver_node_attr = input_channels[i].split('.')
+            driver_node = get_dg_node_by_name(driver_node_attr[0])
+            driver_plug = driver_node.findPlug(driver_node_attr[1], False)
+            in_plug_item = in_plug.elementByLogicalIndex(i)
+            dg_modifier.connect(driver_plug, in_plug_item)
+        output_node_attr = output_channel.split('.')
+        out_plug = dg_node.findPlug("outputValue", False)
+        output_node = get_dg_node_by_name(output_node_attr[0])
+        output_plug = output_node.findPlug(output_node_attr[1], False)
+        # 检查输出目标是否已经被连了
+        if output_plug.isDestination:
+            current_connection = output_plug.source()
+            dg_modifier.disconnect(current_connection, output_plug)
+        dg_modifier.connect(out_plug, output_plug)
+        # 执行
+        dg_node.findPlug("activated", False).setBool(True)
+        dg_modifier.doIt()
