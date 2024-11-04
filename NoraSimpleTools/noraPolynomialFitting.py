@@ -250,4 +250,5 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
                                 print("coefficients: " + coefficients_str)
                                 handled_channels += 1
         final_string += ")"
+        print("final: ")
         print(final_string)
