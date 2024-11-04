@@ -211,6 +211,8 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
 
     @staticmethod
     def print_coefficients(self):
+        final_string = "("
+        handled_channels = 0
         selected_objects = cmds.ls(selection=True, long=True, objectsOnly=True)
         for obj in selected_objects:
             channels = cmds.listAttr(obj, keyable=True, scalar=True, visible=True, settable=True, inUse=True)
@@ -234,12 +236,18 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
                                 if coef_indices is None:
                                     print("coefficients: None")
                                     continue
+                                if handled_channels > 0:
+                                    final_string += ","
+                                final_string += "(Intercept=" + get_split_float_str(cmds.getAttr(node_name + ".intercept")) + ",Coefficients="
                                 coef_num = len(coef_indices)
                                 coefficients_str = "("
                                 for i in range(coef_num):
                                     coefficients_str += get_split_float_str(cmds.getAttr(node_name + f".coefficients[{i}]"))
                                     if i < coef_num - 1:
                                         coefficients_str += ","
-                                coefficients_str += ")"
+                                coefficients_str += "))"
+                                final_string += coefficients_str
                                 print("coefficients: " + coefficients_str)
-
+                                handled_channels += 1
+        final_string += ")"
+        print(final_string)
