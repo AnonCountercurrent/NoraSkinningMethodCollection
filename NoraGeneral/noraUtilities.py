@@ -91,6 +91,23 @@ def get_dg_node_by_name(node_name):
     return om.MFnDependencyNode(node_obj)
 
 
+def get_parent_joint(joint_name):
+    """
+    获取父关节
+    """
+    parents = cmds.listRelatives(joint_name, parent=True)
+    # 检查是否有父对象
+    if parents:
+        parent_name = parents[0]
+        # 检查父对象是否为 joint 类型
+        if cmds.objectType(parent_name) == 'joint':
+            return parent_name
+        else:
+            return None
+    else:
+        return None
+
+
 def split_float(in_float_value, max_value = 1000000.0):
     """
     将一个浮点数拆分为一个 浮点数 f 和一个除数 i， f/i = in_float_value

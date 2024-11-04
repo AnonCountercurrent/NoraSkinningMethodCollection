@@ -1,4 +1,7 @@
 from importlib import reload
+
+import numpy as np
+from sklearn.preprocessing import PolynomialFeatures
 from PySide6 import QtCore, QtWidgets
 from NoraUtilities.UI import noraDeveloperTestWidget
 from NoraGeneral import noraUtilities
@@ -38,5 +41,8 @@ class NoraDeveloperTest(QtWidgets.QDialog, noraDeveloperTestWidget.Ui_noraDevelo
         self.testPushButton.clicked.connect(self.test_button_clicked)
 
     def test_button_clicked(self):
-        test_value_0 = self.doubleSpinBox.value()
-        print(get_split_float_str(test_value_0))
+        # test_value_0 = self.doubleSpinBox.value()
+        # print(get_split_float_str(test_value_0))
+        X = np.arange(1, 8).reshape(1, 7)
+        poly = PolynomialFeatures(degree=2)
+        print(poly.fit_transform(X))
