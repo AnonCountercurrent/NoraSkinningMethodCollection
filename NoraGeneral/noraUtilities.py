@@ -108,6 +108,25 @@ def get_parent_joint(joint_name):
         return None
 
 
+def get_true_source(source):
+    """
+    递归查找输入到指定属性的实际源节点
+    :param attribute: 属性名称，如 "pSphere1.rotateX"
+    :return: 实际源节点的名称
+    """
+    # 检查连接的节点类型，如果是 unitConversion 等中间节点，递归查找输入
+    node_name = source.split('.')[0]
+    node_type = cmds.nodeType(node_name)
+    if node_type in ["unitConversion"]:
+        previous_attribute = cmds.listConnections(node_name + ".input", source=True, destination=False, plugs=True)
+        if previous_attribute:
+            return get_true_source(previous_attribute[0])
+        else:
+            return None
+    # 返回实际的源节点
+    return source
+
+
 def split_float(in_float_value, max_value = 1000000.0):
     """
     将一个浮点数拆分为一个 浮点数 f 和一个除数 i， f/i = in_float_value

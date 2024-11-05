@@ -1,3 +1,4 @@
+import math
 from importlib import reload
 from PySide6 import QtCore, QtWidgets
 from sklearn.linear_model import LinearRegression
@@ -5,6 +6,9 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.metrics import mean_squared_error
 import numpy as np
 import pandas as pd
+
+from NoraGeneral import noraUtilities
+reload(noraUtilities)
 
 from NoraGeneral.noraUtilities import *
 from NoraSimpleTools.UI import noraPolynomialFittingWidget
@@ -161,8 +165,13 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
                 cmds.setAttr(f"{node_name}.radians[{i}]", False)
         cmds.connectAttr(f"{node_name}.outputValue", output_channel, force=True)
         # 数据写入
-        cmds.setAttr(f"{node_name}.defaultValue", default_value)
+        radians_to_degree = radians and is_rotation_attribute(output_channel)
+        if radians_to_degree:
+            cmds.setAttr(f"{node_name}.defaultValue", math.degrees(default_value))
+        else:
+            cmds.setAttr(f"{node_name}.defaultValue", default_value)
         cmds.setAttr(f"{node_name}.degree", degree)
+        cmds.setAttr(f"{node_name}.radiansToDegree", radians_to_degree)
         cmds.setAttr(f"{node_name}.intercept", intercept)
         for i in range(coefficients.size):
             cmds.setAttr(f"{node_name}.coefficients[{i}]", coefficients[i])
@@ -172,12 +181,17 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
     def custom_create_node_om(input_channels:list, output_channel:str, degree:int, default_value:float, intercept:float, coefficients:np.ndarray, radians=False):
         dg_modifier = om.MDGModifier()
         driver_num = len(input_channels)
+        radians_to_degree = radians and is_rotation_attribute(output_channel)
         # 创建节点
         node_obj = dg_modifier.createNode("noraPolynomialFitting")
         dg_node = om.MFnDependencyNode(node_obj)
         # 数据写入
-        dg_node.findPlug("defaultValue", False).setDouble(default_value)
+        if radians_to_degree:
+            dg_node.findPlug("defaultValue", False).setDouble(math.degrees(default_value))
+        else:
+            dg_node.findPlug("defaultValue", False).setDouble(default_value)
         dg_node.findPlug("degree", False).setInt(degree)
+        dg_node.findPlug("radiansToDegree", False).setBool(radians_to_degree)
         dg_node.findPlug("intercept", False).setDouble(intercept)
         coeff_plug = dg_node.findPlug("coefficients", False)
         for i in range(coefficients.size):
@@ -227,8 +241,11 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
                     connected_nodes = cmds.listConnections(full_path_name, source=True, destination=False, plugs=True)
                     if connected_nodes:
                         for node in connected_nodes:
-                            # 检查节点类型是否是 noraPolynomialFitting
-                            node_name, attr = node.split('.', 1)
+                            # 检查节点类型是否是 noraPolynomialFitting（跳过转换节点）
+                            source_attr = get_true_source(node)
+                            if source_attr is None:
+                                continue
+                            node_name, attr = source_attr.split('.', 1)
                             if cmds.nodeType(node_name) == 'noraPolynomialFitting':
                                 print(replace_fbx_asc_xxx(get_short_name(obj), True) + '.' + long_channel_name)
                                 print("intercept: " + get_split_float_str(cmds.getAttr(node_name + ".intercept")))

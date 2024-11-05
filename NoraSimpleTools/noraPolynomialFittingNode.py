@@ -1,3 +1,5 @@
+import math
+
 from sklearn.linear_model import LinearRegression
 from sklearn.preprocessing import PolynomialFeatures
 from NoraGeneral.noraUtilities import *
@@ -8,6 +10,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
     id = om.MTypeId(0x00088601)
     inActivated = om.MObject()
     inDefaultValue = om.MObject()
+    inOutRadians = om.MObject()
     inDegree = om.MObject()
     inIntercept = om.MObject()
     inCoefficients = om.MObject()
@@ -25,6 +28,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
         n_attr = om.MFnNumericAttribute()
         NoraPolynomialFittingNode.inActivated = n_attr.create("activated", "ac", om.MFnNumericData.kBoolean, False)
         NoraPolynomialFittingNode.inDefaultValue = n_attr.create("defaultValue", "dv", om.MFnNumericData.kDouble, 0.0)
+        NoraPolynomialFittingNode.inRadiansToDegree = n_attr.create("radiansToDegree", "rtd", om.MFnNumericData.kBoolean, False)
         NoraPolynomialFittingNode.inDegree = n_attr.create("degree", "deg", om.MFnNumericData.kInt, 1)
         n_attr.setMin(1)
         n_attr.setMax(16)
@@ -46,6 +50,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
         # add attributes
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inActivated)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inDefaultValue)
+        NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inRadiansToDegree)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inDegree)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inIntercept)
         NoraPolynomialFittingNode.addAttribute(NoraPolynomialFittingNode.inCoefficients)
@@ -65,6 +70,7 @@ class NoraPolynomialFittingNode(om.MPxNode):
             active_handle = data.inputValue(NoraPolynomialFittingNode.inActivated) # MDataHandle
             default_handle = data.inputValue(NoraPolynomialFittingNode.inDefaultValue)
             degree_handle = data.inputValue(NoraPolynomialFittingNode.inDegree)
+            radians_to_degree_handle = data.inputValue(NoraPolynomialFittingNode.inRadiansToDegree)
             intercept_handle = data.inputValue(NoraPolynomialFittingNode.inIntercept)
             coefficients_handle = data.inputArrayValue(NoraPolynomialFittingNode.inCoefficients) # MArrayDataHandle
             radians_handle = data.inputArrayValue(NoraPolynomialFittingNode.inRadians)
@@ -106,5 +112,8 @@ class NoraPolynomialFittingNode(om.MPxNode):
             final_value = model.predict(input_values_transformed)
             # 输出
             out_handle = data.outputValue(NoraPolynomialFittingNode.outValue)
-            out_handle.setDouble(final_value[0])
+            if radians_to_degree_handle.asBool():
+                out_handle.setDouble(math.degrees(final_value[0]))
+            else:
+                out_handle.setDouble(final_value[0])
             data.setClean(plug)
