@@ -91,6 +91,13 @@ def get_dg_node_by_name(node_name):
     return om.MFnDependencyNode(node_obj)
 
 
+def get_dag_path_by_name(node_name):
+    selection_list = om.MSelectionList()
+    selection_list.add(node_name)
+    node_path = selection_list.getDagPath(0)
+    return node_path
+
+
 def get_parent_joint(joint_name):
     """
     获取父关节
