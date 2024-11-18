@@ -1,6 +1,8 @@
 import os, sys
-from importlib import reload
 sys.path.append(r'F:\Git\NoraSkinningMethodCollection')
 import noraMayaSetup
-reload(noraMayaSetup)
 noraMayaSetup.NoraSMC().load_window()
+
+
+MAYA_PLUG_IN_PATH=F:\Git\NoraSkinningMethodCollection;
+PYTHONPATH=F:\Git\NoraSkinningMethodCollection;
