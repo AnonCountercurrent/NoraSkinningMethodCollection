@@ -23,8 +23,8 @@ class Ui_noraJointSettingsWidget(object):
         if not noraJointSettingsWidget.objectName():
             noraJointSettingsWidget.setObjectName(u"noraJointSettingsWidget")
         noraJointSettingsWidget.resize(422, 324)
-        self.verticalLayout_2 = QVBoxLayout(noraJointSettingsWidget)
-        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.verticalLayout_3 = QVBoxLayout(noraJointSettingsWidget)
+        self.verticalLayout_3.setObjectName(u"verticalLayout_3")
         self.groupBox = QGroupBox(noraJointSettingsWidget)
         self.groupBox.setObjectName(u"groupBox")
         self.verticalLayout = QVBoxLayout(self.groupBox)
@@ -35,11 +35,28 @@ class Ui_noraJointSettingsWidget(object):
         self.verticalLayout.addWidget(self.makeJointScaledUEStylePushButton)
 
 
-        self.verticalLayout_2.addWidget(self.groupBox)
+        self.verticalLayout_3.addWidget(self.groupBox)
+
+        self.groupBox_2 = QGroupBox(noraJointSettingsWidget)
+        self.groupBox_2.setObjectName(u"groupBox_2")
+        self.verticalLayout_2 = QVBoxLayout(self.groupBox_2)
+        self.verticalLayout_2.setObjectName(u"verticalLayout_2")
+        self.rideVerticalLayout = QVBoxLayout()
+        self.rideVerticalLayout.setObjectName(u"rideVerticalLayout")
+
+        self.verticalLayout_2.addLayout(self.rideVerticalLayout)
+
+        self.pushButton = QPushButton(self.groupBox_2)
+        self.pushButton.setObjectName(u"pushButton")
+
+        self.verticalLayout_2.addWidget(self.pushButton)
+
+
+        self.verticalLayout_3.addWidget(self.groupBox_2)
 
         self.verticalSpacer = QSpacerItem(20, 254, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
-        self.verticalLayout_2.addItem(self.verticalSpacer)
+        self.verticalLayout_3.addItem(self.verticalSpacer)
 
 
         self.retranslateUi(noraJointSettingsWidget)
@@ -51,5 +68,7 @@ class Ui_noraJointSettingsWidget(object):
         noraJointSettingsWidget.setWindowTitle(QCoreApplication.translate("noraJointSettingsWidget", u"Dialog", None))
         self.groupBox.setTitle("")
         self.makeJointScaledUEStylePushButton.setText(QCoreApplication.translate("noraJointSettingsWidget", u"\u8bbe\u7f6e\u9009\u4e2d\u9aa8\u9abc\u4f7f\u7528UE\u98ce\u683c\u7684\u7f29\u653e", None))
+        self.groupBox_2.setTitle(QCoreApplication.translate("noraJointSettingsWidget", u"Reset transform", None))
+        self.pushButton.setText(QCoreApplication.translate("noraJointSettingsWidget", u"\u5c06Bip001\u8bbe\u7f6e\u5230\u539f\u70b9", None))
     # retranslateUi
 

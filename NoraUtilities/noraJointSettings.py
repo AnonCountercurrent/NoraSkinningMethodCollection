@@ -2,8 +2,15 @@ from importlib import reload
 from PySide6 import QtCore, QtWidgets
 from NoraGeneral.noraUtilities import *
 from NoraUtilities.UI import noraJointSettingsWidget
+from NoraGeneral import noraStringInput
+from NoraGeneral import noraPathSelect
+from NoraGeneral import noraFileList
 
 reload(noraJointSettingsWidget)
+reload(noraStringInput)
+reload(noraPathSelect)
+reload(noraFileList)
+
 
 def get_title():
     return 'Joint Settings'
@@ -32,6 +39,15 @@ class NoraJointSettings(QtWidgets.QDialog, noraJointSettingsWidget.Ui_noraJointS
         self.setupUi(self)
         self.setWindowFlags(QtCore.Qt.Window)
 
+        # UI
+        self.file_list_widget = noraFileList.NoraFileList()
+        self.file_list_widget.file_only = True
+        self.rideVerticalLayout.addWidget(self.file_list_widget)
+        self.socket_name_widget = noraStringInput.NoraStringInput()
+        self.socket_name_widget.label.setText("挂点名：")
+        self.rideVerticalLayout.addWidget(self.socket_name_widget)
+
+        # 事件绑定
         self.makeJointScaledUEStylePushButton.clicked.connect(self.make_selected_joint_scaled_ue_style)
 
     @staticmethod
