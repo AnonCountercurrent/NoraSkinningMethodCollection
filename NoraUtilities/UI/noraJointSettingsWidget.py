@@ -46,10 +46,10 @@ class Ui_noraJointSettingsWidget(object):
 
         self.verticalLayout_2.addLayout(self.rideVerticalLayout)
 
-        self.pushButton = QPushButton(self.groupBox_2)
-        self.pushButton.setObjectName(u"pushButton")
+        self.restBipPushButton = QPushButton(self.groupBox_2)
+        self.restBipPushButton.setObjectName(u"restBipPushButton")
 
-        self.verticalLayout_2.addWidget(self.pushButton)
+        self.verticalLayout_2.addWidget(self.restBipPushButton)
 
 
         self.verticalLayout_3.addWidget(self.groupBox_2)
@@ -69,6 +69,6 @@ class Ui_noraJointSettingsWidget(object):
         self.groupBox.setTitle("")
         self.makeJointScaledUEStylePushButton.setText(QCoreApplication.translate("noraJointSettingsWidget", u"\u8bbe\u7f6e\u9009\u4e2d\u9aa8\u9abc\u4f7f\u7528UE\u98ce\u683c\u7684\u7f29\u653e", None))
         self.groupBox_2.setTitle(QCoreApplication.translate("noraJointSettingsWidget", u"Reset transform", None))
-        self.pushButton.setText(QCoreApplication.translate("noraJointSettingsWidget", u"\u5c06Bip001\u8bbe\u7f6e\u5230\u539f\u70b9", None))
+        self.restBipPushButton.setText(QCoreApplication.translate("noraJointSettingsWidget", u"\u5c06Bip001\u8bbe\u7f6e\u5230\u539f\u70b9", None))
     # retranslateUi
 

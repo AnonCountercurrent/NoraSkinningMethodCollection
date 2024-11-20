@@ -40,7 +40,7 @@
        <layout class="QVBoxLayout" name="rideVerticalLayout"/>
       </item>
       <item>
-       <widget class="QPushButton" name="pushButton">
+       <widget class="QPushButton" name="restBipPushButton">
         <property name="text">
          <string>将Bip001设置到原点</string>
         </property>

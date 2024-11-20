@@ -333,7 +333,22 @@ def get_short_name(obj):
     return short_object_name
 
 
-def set_keyframes(ctrl_name, attr_name, key_times, key_values):
+def import_reference(self):
+    """
+    导入全部引用
+    """
+    ref_paths = cmds.file(q=True, reference=True) or []
+    for ref_path in ref_paths:
+        if cmds.referenceQuery(ref_path, isLoaded=True):
+            cmds.file(ref_path, importReference=True)
+            new_ref_paths = cmds.file(q=True, reference=True)
+            if new_ref_paths:
+                for new_ref_path in new_ref_paths:
+                    if new_ref_path not in ref_path:
+                        ref_paths.append(new_ref_path)
+
+
+def set_keyframes(ctrl_name, attr_name, key_times, key_values, remove_all_keys=False):
     """
     连接曲线节点到给定端口，并设置帧
     """
@@ -350,14 +365,16 @@ def set_keyframes(ctrl_name, attr_name, key_times, key_values):
         curve_node.create(mplug)
 
     # 先把旧关键帧移除
-    # 移除所有
-    # while curve_node.numKeys != 0:
-    #     curve_node.remove(curve_node.numKeys - 1)
-    # 仅移除重叠部分
-    for key_time in key_times:
-        found_key_index = curve_node.find(key_time)
-        if found_key_index is not None:
-            curve_node.remove(found_key_index)
+    if remove_all_keys:
+        # 移除所有
+        while curve_node.numKeys != 0:
+            curve_node.remove(curve_node.numKeys - 1)
+    else:
+        # 仅移除重叠部分
+        for key_time in key_times:
+            found_key_index = curve_node.find(key_time)
+            if found_key_index is not None:
+                curve_node.remove(found_key_index)
 
     # 如果是角度类的曲线，转换成弧度
     angular_types = [oma.MFnAnimCurve.kAnimCurveTA, oma.MFnAnimCurve.kAnimCurveUA]

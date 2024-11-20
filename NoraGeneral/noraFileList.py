@@ -49,6 +49,8 @@ class NoraDropEnabledListWidget(QtWidgets.QListWidget):
 
 
 class NoraFileList(QtWidgets.QDialog, noraFileListWidget.Ui_noraFilePathListDialog):
+    typeDict = {'mb': 'mayaBinary', 'ma': 'mayaAscii', 'fbx': 'FBX', 'FBX': 'FBX'}
+    optionsDict = {'mb': 'v=0;', 'ma': 'v=0;', 'fbx': 'fbx', 'FBX': 'fbx'}
     def __init__(self, parent=None):
         super(NoraFileList, self).__init__(parent)
         self.setParent(parent)
@@ -108,4 +110,10 @@ class NoraFileList(QtWidgets.QDialog, noraFileListWidget.Ui_noraFilePathListDial
 
     def clear_list(self):
         self.listWidget.clear()
-        
+
+    def get_file_list(self):
+        file_list = []
+        for item_idx in range(self.listWidget.count()):
+            item = self.listWidget.item(item_idx)
+            file_list.append(item.text())
+        return file_list
