@@ -21,6 +21,9 @@ class NoraAbout(QtWidgets.QDialog, noraAboutWidget.Ui_noraAboutWidget):
     def set_link(self, in_link):
         self.link_str = in_link
 
+    def set_link_text(self, in_text):
+        self.linkButton.setText(in_text)
+
     def goto_url(self):
         webbrowser.open(self.link_str)
 

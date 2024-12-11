@@ -389,6 +389,60 @@ def set_keyframes(ctrl_name, attr_name, key_times, key_values, remove_all_keys=F
         True)
 
 
+def get_connect_object(dag_path, node_type):
+    dag_iterator = om.MItDag(om.MItDag.kDepthFirst, om.MFn.kInvalid)
+    dag_iterator.reset(dag_path.node(), om.MItDag.kDepthFirst, om.MFn.kInvalid)
+    while not dag_iterator.isDone():
+        curr_obj = dag_iterator.currentItem()
+        if curr_obj.apiType() == node_type:
+            return curr_obj
+        itDG = om.MItDependencyGraph(curr_obj, node_type, om.MItDependencyGraph.kDownstream)
+        while not itDG.isDone():
+            return itDG.currentNode()
+        itDG2 = om.MItDependencyGraph(curr_obj, node_type, om.MItDependencyGraph.kUpstream)
+        while not itDG2.isDone():
+            return itDG2.currentNode()
+        dag_iterator.next()
+    return None
+
+
+def get_intersect_normal_on_nurbs_surface(in_shell, in_p1, in_p2, in_tol, int_two_way, in_radius):
+    ray_dir = om.MVector(in_p2 - in_p1).normal()
+    intersect_result = in_shell.intersect(in_p1, ray_dir, tolerance=in_tol, space=om.MSpace.kWorld, distance=True, exactHit=True)
+    if intersect_result is None:
+        intersect_result = (0, 0, 0, 0, False)
+    if intersect_result[4]:
+        if int_two_way:
+            intersect_result2 = in_shell.intersect(in_p2, ray_dir * -1.0, tolerance=in_tol, space=om.MSpace.kWorld, distance=True, exactHit=True)
+            if intersect_result2 is None:
+                intersect_result2 = (0, 0, 0, 0, False)
+            if intersect_result2[4]:
+                if intersect_result2[3] < intersect_result[3]:
+                    intersect_result = intersect_result2
+    if intersect_result[4]:
+        if intersect_result[3] > in_radius:
+            return None
+        return in_shell.normal(intersect_result[1], intersect_result[2], om.MSpace.kWorld)
+    else:
+        return None
+
+
+def get_intersect_normal_on_mesh_surface(in_shell, in_p1, in_p2, in_tol, int_two_way, in_radius):
+    ray_dir = om.MFloatVector(in_p2 - in_p1).normal()
+    intersect_result = in_shell.closestIntersection(om.MFloatPoint(in_p1), ray_dir, om.MSpace.kWorld, in_radius, False, tolerance=in_tol)
+    if int_two_way:
+        intersect_result2 = in_shell.closestIntersection(om.MFloatPoint(in_p2), ray_dir * -1.0, om.MSpace.kWorld, in_radius, False, tolerance=in_tol)
+        if intersect_result is None:
+            intersect_result = intersect_result2
+        elif intersect_result2 is not None:
+            if in_p2.distanceTo(om.MPoint(intersect_result[0])) > in_p2.distanceTo(om.MPoint(intersect_result2[0])):
+                intersect_result = intersect_result2
+    if intersect_result is not None:
+        return in_shell.getClosestNormal(om.MPoint(intersect_result[0]), om.MSpace.kWorld)[0]
+    else:
+        return None
+
+
 class NoraProgressBar:
     """
     进度条
