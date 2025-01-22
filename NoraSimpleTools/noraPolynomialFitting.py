@@ -64,11 +64,8 @@ class NoraPolynomialFitting(QtWidgets.QDialog, noraPolynomialFittingWidget.Ui_no
         self.rest_frame_widget.label.setText("绑定姿势所在帧：")
         self.frameSetLayout.addWidget(self.rest_frame_widget)
 
-        self.degree_widget = noraIntNumber.NoraIntNumber()
+        self.degree_widget = noraIntNumber.NoraIntNumber(2, 1, 16)
         self.degree_widget.label.setText("多项式的度：")
-        self.degree_widget.intNumber.setMinimum(1)
-        self.degree_widget.intNumber.setMaximum(16)
-        self.degree_widget.intNumber.setValue(2)
         self.degree_widget.value_changed()
         self.driverLayout.addWidget(self.degree_widget)
 

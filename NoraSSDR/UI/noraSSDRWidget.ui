@@ -6,30 +6,97 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>504</width>
-    <height>399</height>
+    <width>419</width>
+    <height>553</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Dialog</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout_4">
+   <item>
+    <widget class="QGroupBox" name="targetsGroupBox">
+     <property name="title">
+      <string>Targets</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout">
+      <item>
+       <layout class="QVBoxLayout" name="targetsVerticalLayout"/>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="settingsGroupBox">
+     <property name="title">
+      <string>Settings</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2">
+      <item>
+       <layout class="QVBoxLayout" name="settingsVerticalLayout"/>
+      </item>
+      <item>
+       <widget class="Line" name="line">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="settingsVerticalLayout2"/>
+      </item>
+      <item>
+       <widget class="Line" name="line_2">
+        <property name="orientation">
+         <enum>Qt::Horizontal</enum>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <layout class="QVBoxLayout" name="settingsVerticalLayout3">
+        <item>
+         <widget class="QCheckBox" name="laplacianCheckBox">
+          <property name="styleSheet">
+           <string notr="true">QCheckBox {
+    color:#eff0f1;
+}</string>
+          </property>
+          <property name="text">
+           <string>平滑权重</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="secondaryModeCheckBox">
+        <property name="styleSheet">
+         <string notr="true">QCheckBox {
+    color:#eff0f1;
+}</string>
+        </property>
+        <property name="text">
+         <string>次级骨骼模式</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
    <item>
     <widget class="QGroupBox" name="groupBox">
      <property name="title">
-      <string>Base</string>
+      <string>Actions</string>
      </property>
-     <widget class="QWidget" name="verticalLayoutWidget">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>20</y>
-        <width>461</width>
-        <height>51</height>
-       </rect>
-      </property>
-      <layout class="QVBoxLayout" name="targetsVerticalLayout"/>
-     </widget>
+     <layout class="QVBoxLayout" name="verticalLayout_3">
+      <item>
+       <widget class="QPushButton" name="GenerateJointsAndWeightPushButton">
+        <property name="text">
+         <string>生成骨骼和权重信息</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
     </widget>
    </item>
    <item>
@@ -40,7 +107,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>360</height>
+       <height>10</height>
       </size>
      </property>
     </spacer>

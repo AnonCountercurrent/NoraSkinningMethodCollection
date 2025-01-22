@@ -123,7 +123,7 @@ class NoraChannelList(QtWidgets.QDialog, noraListWidget.Ui_noraListDialog):
 
         self.save_icon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton"))
         self.saveConfigButton = QtWidgets.QPushButton(u"saveConfigButton")
-        self.saveConfigButton.setText("保持配置")
+        self.saveConfigButton.setText("保存配置")
         self.saveConfigButton.setIcon(self.save_icon)
         self.externVerticalLayout.addWidget(self.saveConfigButton)
 

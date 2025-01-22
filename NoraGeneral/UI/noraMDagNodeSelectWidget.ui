@@ -28,18 +28,6 @@
    <layout class="QHBoxLayout" name="selectLayout">
     <item>
      <widget class="QLabel" name="label">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Preferred">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>60</width>
-        <height>0</height>
-       </size>
-      </property>
       <property name="text">
        <string>label</string>
       </property>
@@ -50,24 +38,6 @@
     </item>
     <item>
      <widget class="QPushButton" name="pushButton">
-      <property name="sizePolicy">
-       <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-        <horstretch>0</horstretch>
-        <verstretch>0</verstretch>
-       </sizepolicy>
-      </property>
-      <property name="minimumSize">
-       <size>
-        <width>40</width>
-        <height>0</height>
-       </size>
-      </property>
-      <property name="maximumSize">
-       <size>
-        <width>40</width>
-        <height>16777215</height>
-       </size>
-      </property>
       <property name="text">
        <string/>
       </property>

@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>400</width>
-    <height>300</height>
+    <width>595</width>
+    <height>304</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -19,7 +19,7 @@
      <x>40</x>
      <y>70</y>
      <width>331</width>
-     <height>73</height>
+     <height>61</height>
     </rect>
    </property>
    <layout class="QHBoxLayout" name="noraPathSelectHorizontalLayout">

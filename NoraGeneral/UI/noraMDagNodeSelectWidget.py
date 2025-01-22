@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'noraMDagNodeSelectWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -32,12 +32,6 @@ class Ui_noraMDagNodeSelectWidget(object):
         self.selectLayout.setContentsMargins(0, 0, 0, 0)
         self.label = QLabel(self.layoutWidget)
         self.label.setObjectName(u"label")
-        sizePolicy = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Preferred)
-        sizePolicy.setHorizontalStretch(0)
-        sizePolicy.setVerticalStretch(0)
-        sizePolicy.setHeightForWidth(self.label.sizePolicy().hasHeightForWidth())
-        self.label.setSizePolicy(sizePolicy)
-        self.label.setMinimumSize(QSize(60, 0))
 
         self.selectLayout.addWidget(self.label)
 
@@ -48,13 +42,6 @@ class Ui_noraMDagNodeSelectWidget(object):
 
         self.pushButton = QPushButton(self.layoutWidget)
         self.pushButton.setObjectName(u"pushButton")
-        sizePolicy1 = QSizePolicy(QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Fixed)
-        sizePolicy1.setHorizontalStretch(0)
-        sizePolicy1.setVerticalStretch(0)
-        sizePolicy1.setHeightForWidth(self.pushButton.sizePolicy().hasHeightForWidth())
-        self.pushButton.setSizePolicy(sizePolicy1)
-        self.pushButton.setMinimumSize(QSize(40, 0))
-        self.pushButton.setMaximumSize(QSize(40, 16777215))
 
         self.selectLayout.addWidget(self.pushButton)
 

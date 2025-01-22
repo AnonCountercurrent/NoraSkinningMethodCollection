@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'noraPathSelectWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -22,10 +22,10 @@ class Ui_noraPathSelectDialog(object):
     def setupUi(self, noraPathSelectDialog):
         if not noraPathSelectDialog.objectName():
             noraPathSelectDialog.setObjectName(u"noraPathSelectDialog")
-        noraPathSelectDialog.resize(400, 300)
+        noraPathSelectDialog.resize(595, 304)
         self.horizontalLayoutWidget = QWidget(noraPathSelectDialog)
         self.horizontalLayoutWidget.setObjectName(u"horizontalLayoutWidget")
-        self.horizontalLayoutWidget.setGeometry(QRect(40, 70, 331, 73))
+        self.horizontalLayoutWidget.setGeometry(QRect(40, 70, 331, 61))
         self.noraPathSelectHorizontalLayout = QHBoxLayout(self.horizontalLayoutWidget)
         self.noraPathSelectHorizontalLayout.setObjectName(u"noraPathSelectHorizontalLayout")
         self.noraPathSelectHorizontalLayout.setContentsMargins(0, 0, 0, 0)
