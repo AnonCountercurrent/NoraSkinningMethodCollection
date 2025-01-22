@@ -443,6 +443,16 @@ def get_intersect_normal_on_mesh_surface(in_shell, in_p1, in_p2, in_tol, int_two
         return None
 
 
+def get_default_config_path():
+    """
+    默认保存路径
+    """
+    path = get_document_path() + r'\Nora Skinning Method Collection'
+    if not os.path.exists(path):
+        os.makedirs(path)
+    return path
+
+
 class NoraProgressBar:
     """
     进度条

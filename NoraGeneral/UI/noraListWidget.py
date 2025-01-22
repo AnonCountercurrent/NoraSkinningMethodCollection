@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'noraListWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -68,6 +68,11 @@ class Ui_noraListDialog(object):
 
 
         self.noraChannelListLayout.addLayout(self.horizontalLayout)
+
+        self.externVerticalLayout = QVBoxLayout()
+        self.externVerticalLayout.setObjectName(u"externVerticalLayout")
+
+        self.noraChannelListLayout.addLayout(self.externVerticalLayout)
 
 
         self.retranslateUi(noraListDialog)

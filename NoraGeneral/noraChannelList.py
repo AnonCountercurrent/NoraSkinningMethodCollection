@@ -1,15 +1,15 @@
 from importlib import reload
-from PySide6 import QtGui
+from PySide6 import QtGui, QtWidgets
 from NoraGeneral.UI import noraListWidget
 from NoraUtilities.UI import noraChannelSelectWindow
 from NoraGeneral import noraLabel
 from NoraGeneral.noraUtilities import *
 from dataclasses import dataclass
+import json
 
 reload(noraListWidget)
 reload(noraChannelSelectWindow)
 reload(noraLabel)
-
 
 @dataclass
 class ChannelName:
@@ -17,6 +17,23 @@ class ChannelName:
     display_name: str
     channel_name: str
     obj_name: str
+    display_name: str
+
+@dataclass
+class ChannelConfigData:
+    name: str
+    obj_name: str
+    display_name: str
+
+class NoraChannelConfigJsonEncoder(json.JSONEncoder):
+    """
+    用于存json
+    """
+    def default(self, obj):
+        if isinstance(obj, ChannelConfigData):
+            return obj.__dict__
+        else:
+            return json.JSONEncoder.default(self, object)
 
 
 class NoraGeneralChannelSelectWindow(QtWidgets.QMainWindow, noraChannelSelectWindow.Ui_noraChannelSelectWindow):
@@ -97,6 +114,19 @@ class NoraChannelList(QtWidgets.QDialog, noraListWidget.Ui_noraListDialog):
 
         self.listWidget.setSelectionMode(QtWidgets.QAbstractItemView.ExtendedSelection)
 
+        # ui 补充
+        self.open_icon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogOpenButton"))
+        self.loadConfigButton = QtWidgets.QPushButton(u"loadConfigButton")
+        self.loadConfigButton.setText("加载配置")
+        self.loadConfigButton.setIcon(self.open_icon)
+        self.externVerticalLayout.addWidget(self.loadConfigButton)
+
+        self.save_icon = self.style().standardIcon(getattr(QtWidgets.QStyle, "SP_DialogSaveButton"))
+        self.saveConfigButton = QtWidgets.QPushButton(u"saveConfigButton")
+        self.saveConfigButton.setText("保持配置")
+        self.saveConfigButton.setIcon(self.save_icon)
+        self.externVerticalLayout.addWidget(self.saveConfigButton)
+
         # 成员
         self.add_channels_win = None
 
@@ -104,6 +134,8 @@ class NoraChannelList(QtWidgets.QDialog, noraListWidget.Ui_noraListDialog):
         self.addButton.clicked.connect(self.add_button_clicked)
         self.removeButton.clicked.connect(self.remove_button_clicked)
         self.selectButton.clicked.connect(self.select_button_clicked)
+        self.saveConfigButton.clicked.connect(self.save_button_clicked)
+        self.loadConfigButton.clicked.connect(self.load_button_clicked)
 
     def add_button_clicked(self):
         # 收集当前列表里的Channel到dict
@@ -144,3 +176,45 @@ class NoraChannelList(QtWidgets.QDialog, noraListWidget.Ui_noraListDialog):
             list_item.listWidget()
             list_item.setSizeHint(label_item.minimumSizeHint())
             self.listWidget.setItemWidget(list_item, label_item)
+
+    def save_button_clicked(self):
+        save_path = get_default_config_path()
+        # 对话框
+        file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
+            parent=self,
+            caption='保存配置',
+            dir=save_path + r'\channel_list_config',
+            filter='Configuration Files (*.json)')
+        # 保存
+        if len(file_path) > 0:
+            channels = []
+            channel_num = self.listWidget.count()
+            for i in range(channel_num):
+                item = self.listWidget.item(i)
+                item_widget = self.listWidget.itemWidget(item)
+                channels.append(ChannelConfigData(item_widget.info, item_widget.info2, item_widget.get_label_text()))
+            json_string = json.dumps(channels, sort_keys=True, indent=4, cls=NoraChannelConfigJsonEncoder)
+            with open(file_path, 'wt') as writeFile:
+                writeFile.writelines(json_string)
+
+    def load_button_clicked(self):
+        open_path = get_default_config_path()
+        file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
+            parent=self,
+            caption='读取配置',
+            dir=open_path,
+            filter='Configuration Files (*.json)')
+        json_data = None
+        if len(file_path) > 0:
+            try:
+                with open(file_path, 'rt') as readFile:
+                    json_data = json.load(readFile)
+            except ValueError as e:
+                json_data = None
+                print(e)
+        if json_data is not None:
+            channels = []
+            for c in json_data:
+                channels.append(ChannelConfigData(**c))
+            self.listWidget.clear()
+            self.add_fun(channels)

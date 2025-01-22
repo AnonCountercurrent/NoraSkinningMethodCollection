@@ -26,7 +26,7 @@ class NoraLoadDriverConfig(QtWidgets.QDialog, noraLoadDriverConfigWidget.Ui_nora
         self.frameRangeButton.clicked.connect(self.set_frame_range)
 
     def load_config(self):
-        open_path = noraPoseGenerator.NoraPoseGeneratorWin.get_default_config_path()
+        open_path = get_default_config_path()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
             caption='读取配置',

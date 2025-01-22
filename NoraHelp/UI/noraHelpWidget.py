@@ -3,7 +3,7 @@
 ################################################################################
 ## Form generated from reading UI file 'noraHelpWidget.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -23,7 +23,7 @@ class Ui_noraHelpWidget(object):
     def setupUi(self, noraHelpWidget):
         if not noraHelpWidget.objectName():
             noraHelpWidget.setObjectName(u"noraHelpWidget")
-        noraHelpWidget.resize(460, 500)
+        noraHelpWidget.resize(466, 500)
         self.verticalLayout_2 = QVBoxLayout(noraHelpWidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.widget = QWidget(noraHelpWidget)
@@ -47,7 +47,7 @@ class Ui_noraHelpWidget(object):
         self.label.setText(u"Nora SMC")
         self.label_2 = QLabel(self.widget)
         self.label_2.setObjectName(u"label_2")
-        self.label_2.setGeometry(QRect(170, 100, 431, 31))
+        self.label_2.setGeometry(QRect(170, 100, 611, 31))
         font1 = QFont()
         font1.setFamilies([u"\u5e7c\u5706"])
         font1.setPointSize(12)

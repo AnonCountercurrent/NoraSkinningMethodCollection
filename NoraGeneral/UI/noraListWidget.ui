@@ -75,6 +75,9 @@
       </item>
      </layout>
     </item>
+    <item>
+     <layout class="QVBoxLayout" name="externVerticalLayout"/>
+    </item>
    </layout>
   </widget>
  </widget>

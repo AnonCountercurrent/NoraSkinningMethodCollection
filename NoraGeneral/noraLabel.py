@@ -17,3 +17,6 @@ class NoraLabel(QtWidgets.QWidget, noraLabelWidget.Ui_noraLabelLayout):
 
     def set_label_text(self, text):
         self.label.setText(text)
+
+    def get_label_text(self):
+        return self.label.text()

@@ -515,16 +515,8 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
         self.tableWidget.setContextMenuPolicy(QtCore.Qt.CustomContextMenu)
         self.tableWidget.customContextMenuRequested.connect(self.on_table_context_menu)
 
-    @staticmethod
-    def get_default_config_path():
-        # 默认保存路径
-        path = get_document_path() + r'\Nora Skinning Method Collection'
-        if not os.path.exists(path):
-            os.makedirs(path)
-        return path
-
     def save_config(self):
-        save_path = self.get_default_config_path()
+        save_path = get_default_config_path()
         # 对话框
         file_path, _ = QtWidgets.QFileDialog.getSaveFileName(
             parent=self,
@@ -540,7 +532,7 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
                 writeFile.writelines(json_string)
 
     def open_config(self):
-        open_path = self.get_default_config_path()
+        open_path = get_default_config_path()
         file_path, _ = QtWidgets.QFileDialog.getOpenFileName(
             parent=self,
             caption='读取配置',
@@ -559,8 +551,8 @@ class NoraPoseGeneratorWin(QtWidgets.QDialog, noraPoseGeneratorWindow.Ui_noraPos
                 print(e)
 
     def refresh_config(self):
-        if not self.json_data:
-            pass
+        if self.json_data is None:
+            return
         self.config = NoraPoseGeneratorConfig([],
                                               [],
                                               self.json_data['num_samples'],

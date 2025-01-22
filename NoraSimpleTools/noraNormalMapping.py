@@ -72,7 +72,7 @@ class NoraNormalMapping(QtWidgets.QDialog, noraNormalMappingWidget.Ui_noraNormal
         intersect_tol = self.tolSpinBox.value()
         center_curve_target = self.curve_select_widget.get_dag_name()
         shell_target_dag_path = self.shell_select_widget.get_dag_name()
-        max_raidus = self.maxRadiusSpinBox.value()
+        max_radius = self.maxRadiusSpinBox.value()
         shell_mfn = None
         # curve/center
         if not mapping_by_distance:
@@ -151,9 +151,9 @@ class NoraNormalMapping(QtWidgets.QDialog, noraNormalMappingWidget.Ui_noraNormal
                 p2_point = vertices[v_idx]
                 surface_normal = None
                 if shell_mfn.type() == om.MFn.kMesh:
-                    surface_normal = noraUtilities.get_intersect_normal_on_mesh_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_raidus)
+                    surface_normal = noraUtilities.get_intersect_normal_on_mesh_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_radius)
                 else:
-                    surface_normal = noraUtilities.get_intersect_normal_on_nurbs_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_raidus)
+                    surface_normal = noraUtilities.get_intersect_normal_on_nurbs_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_radius)
                 if surface_normal is None:
                     normal_list.append(target_mesh.getVertexNormal(v_idx, True, om.MSpace.kWorld))
                 else:
@@ -167,9 +167,9 @@ class NoraNormalMapping(QtWidgets.QDialog, noraNormalMappingWidget.Ui_noraNormal
                 p1_point = center_curve_target.closestPoint(p2_point, tolerance=intersect_tol, space=om.MSpace.kWorld)[0]
                 surface_normal = None
                 if shell_mfn.type() == om.MFn.kMesh:
-                    surface_normal = noraUtilities.get_intersect_normal_on_mesh_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_raidus)
+                    surface_normal = noraUtilities.get_intersect_normal_on_mesh_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_radius)
                 else:
-                    surface_normal = noraUtilities.get_intersect_normal_on_nurbs_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_raidus)
+                    surface_normal = noraUtilities.get_intersect_normal_on_nurbs_surface(shell_mfn, p1_point, p2_point, intersect_tol, two_way, max_radius)
                 if surface_normal is None:
                     normal_list.append(target_mesh.getVertexNormal(v_idx, True, om.MSpace.kWorld))
                 else:
