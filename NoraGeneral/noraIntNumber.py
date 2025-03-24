@@ -19,3 +19,6 @@ class NoraIntNumber(QtWidgets.QDialog, noraIntNumberWidget.Ui_intNumberLayoutDia
 
     def value_changed(self):
         self.number = int(self.intNumber.value())
+
+    def set_label_text(self, in_str):
+        self.label.setText(in_str)

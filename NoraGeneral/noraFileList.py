@@ -117,3 +117,6 @@ class NoraFileList(QtWidgets.QDialog, noraFileListWidget.Ui_noraFilePathListDial
             item = self.listWidget.item(item_idx)
             file_list.append(item.text())
         return file_list
+
+    def set_label_text(self, in_str):
+        self.label.setText(in_str)
