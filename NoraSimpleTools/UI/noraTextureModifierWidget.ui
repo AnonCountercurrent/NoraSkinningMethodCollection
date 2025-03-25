@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>417</width>
+    <width>502</width>
     <height>493</height>
    </rect>
   </property>
@@ -21,10 +21,7 @@
      </property>
      <layout class="QVBoxLayout" name="verticalLayout">
       <item>
-       <layout class="QHBoxLayout" name="targetModelHorizontalLayout"/>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="originTexHorizontalLayout"/>
+       <layout class="QVBoxLayout" name="texMapTargetslLayout"/>
       </item>
       <item>
        <widget class="Line" name="line">
@@ -34,22 +31,25 @@
        </widget>
       </item>
       <item>
-       <layout class="QHBoxLayout" name="originUVHorizontalLayout"/>
-      </item>
-      <item>
-       <layout class="QHBoxLayout" name="targetUVHorizontalLayout"/>
+       <layout class="QVBoxLayout" name="texMapSettingslLayout"/>
       </item>
       <item>
        <widget class="QCheckBox" name="normalCheckBox">
         <property name="text">
-         <string>Normal Map</string>
+         <string>法线图</string>
         </property>
        </widget>
       </item>
       <item>
        <widget class="QCheckBox" name="originTangentCheckBox">
+        <property name="enabled">
+         <bool>true</bool>
+        </property>
         <property name="text">
-         <string>Orign Tangent Mode</string>
+         <string>切线空间变换模式</string>
+        </property>
+        <property name="checked">
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -78,7 +78,7 @@
      <property name="sizeHint" stdset="0">
       <size>
        <width>20</width>
-       <height>339</height>
+       <height>1</height>
       </size>
      </property>
     </spacer>

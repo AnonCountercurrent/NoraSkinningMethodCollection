@@ -1,14 +1,19 @@
 from importlib import reload
+from math import floor
+
 from PySide6 import QtCore, QtWidgets
 from NoraSimpleTools.UI import noraTextureModifierWidget
-from NoraGeneral import noraUtilities, noraMDagObjectSelect, noraIntNumber, noraFileList
+from NoraGeneral import noraUtilities, noraMDagObjectSelect, noraIntNumber, noraFileList, noraFloatNumber
 reload(noraUtilities)
 reload(noraTextureModifierWidget)
 reload(noraUtilities)
 reload(noraFileList)
+reload(noraFloatNumber)
 from NoraGeneral.noraUtilities import *
 import maya.api.OpenMaya as om
 import maya.cmds as cmds
+from PIL import Image
+import numpy as np
 
 
 def get_title():
@@ -24,7 +29,7 @@ def get_width():
 
 
 def get_height():
-    return 600
+    return 450
 
 
 def get_use_custom_front_style():
@@ -46,25 +51,34 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
         self.target_model_widget.set_label_text("目标网格体：")
         self.origin_tex_widget = noraFileList.NoraFileList()
         self.origin_tex_widget.set_label_text("原始纹理：")
+        self.tol_widget = noraFloatNumber.NoraFloatNumber(default_value=0.0001, min_value=0.000001, max_value=0.1, decimals=6)
+        self.tol_widget.set_label_text("精度：")
 
-        self.originUVHorizontalLayout.addWidget(self.origin_uv_index_widget)
-        self.targetUVHorizontalLayout.addWidget(self.new_uv_index_widget)
-        self.targetModelHorizontalLayout.addWidget(self.target_model_widget)
-        self.originTexHorizontalLayout.addWidget(self.origin_tex_widget)
+        self.texMapTargetslLayout.addWidget(self.target_model_widget)
+        self.texMapTargetslLayout.addWidget(self.origin_tex_widget)
+        self.texMapSettingslLayout.addWidget(self.origin_uv_index_widget)
+        self.texMapSettingslLayout.addWidget(self.new_uv_index_widget)
+        self.texMapSettingslLayout.addWidget(self.tol_widget)
+        self.normal_check_box_changed()
 
         # events
         self.mappingPushButton.clicked.connect(self.mapping_texture)
+        self.normalCheckBox.stateChanged.connect(self.normal_check_box_changed)
+
+    def normal_check_box_changed(self):
+        self.originTangentCheckBox.setEnabled(self.normalCheckBox.isChecked())
 
     def mapping_texture(self):
+        # 获取参数
         is_normal_map = self.normalCheckBox.isChecked()
         origin_tangent_mode = self.originTangentCheckBox.isChecked()
+        tol = self.tol_widget.number
         source_files = self.origin_tex_widget.get_file_list()
         origin_uv_index = self.origin_uv_index_widget.number
         new_uv_index = self.new_uv_index_widget.number
         if origin_uv_index == new_uv_index:
             print("原始UV索引不能等于新UV索引")
             return
-
         # 获取模型
         target_mesh = None # MFnMesh
         target_model_name = self.target_model_widget.get_dag_name()
@@ -75,18 +89,78 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
             if target_mesh is None:
                 print("\'目标网格体\' not set")
                 return
+            if target_mesh.numUVSets <= new_uv_index or target_mesh.numUVSets <= origin_uv_index:
+                print("超出模型UV集数")
+                return
         else:
             print("\'目标网格体\' not exists")
             return
-
-        # 处理纹理
+        # 获取 UV　集
+        uv_set_names = target_mesh.getUVSetNames()
+        old_uv_set = uv_set_names[origin_uv_index]
+        new_uv_set = uv_set_names[new_uv_index]
+        print(f"{old_uv_set} to {new_uv_set}")
+        # 循环处理
         progress_bar = NoraProgressBar()
-        progress_bar.start_progress_bar(len(source_files))
+        progress_bar.start_progress_bar(max_value=len(source_files))
         for file_idx in range(len(source_files)):
             progress_bar.set_progress_bar_value(file_idx)
             # 加载纹理
-            
-
-
+            image_path = source_files[file_idx]
+            pil_image  = Image.open(image_path)
+            if pil_image is None:
+                print("图片 " + image_path + " 加载失败")
+                continue
+            np_image = np.array(pil_image)
+            print(image_path)
+            height, width, channels = np_image.shape
+            print(f"Height: {height}, Width: {width}, Channels: {channels}")
+            # 处理
+            new_image = None
+            if is_normal_map:
+                if origin_tangent_mode:
+                    pass
+                else:
+                    pass
+            else:
+                new_image = NoraNormalMapping.remap_uv(target_mesh, np_image, old_uv_set, new_uv_set, tol, f"{file_idx + 1}. {image_path}")
+            if new_image is not None:
+                img_to_save = Image.fromarray(new_image)
+                suffix_pos = image_path.rfind('.')
+                save_path = image_path[0:suffix_pos] + "New" + image_path[suffix_pos:len(image_path)]
+                print("output: " + save_path)
+                img_to_save.save(save_path)
+            if progress_bar.is_progress_bar_cancelled():
+                progress_bar.stop_progress_bar()
+                return
         progress_bar.stop_progress_bar()
 
+    @staticmethod
+    def remap_uv(in_mesh:om.MFnMesh, in_image:np.ndarray, in_old_uv, in_new_uv, in_tol=0.0001, bar_info=""):
+        new_image = np.zeros_like(in_image)
+        image_shape = new_image.shape
+        step_i = 1 / image_shape[0]
+        step_j = 1 / image_shape[1]
+        half_step_i = 0.5 * step_i
+        half_step_j = 0.5 * step_j
+        progress_bar = NoraProgressBar()
+        progress_bar.start_progress_bar(status_text=bar_info, interruptable=False, max_value=image_shape[0])
+        for i in range(image_shape[0]):
+            progress_bar.set_progress_bar_value(i)
+            for j in range(image_shape[1]):
+                u = i * step_i + half_step_i
+                v = i * step_j + half_step_j
+                # 旧UV位置-模型坐标-新UV位置
+                polygon_ids, points = in_mesh.getPointsAtUV(u, v, space=om.MSpace.kObject, uvSet=in_old_uv, tolerance=in_tol)
+                if points is not None:
+                    for k in range(len(points)):
+                        uv = in_mesh.getPolygonUV(polygon_ids[k], 0, uvSet=in_new_uv)
+                        if 0 <= uv[0] <= 1 and 0 <= uv[1] <= 1: # 这里要求点在新UV集的01范围内
+                            new_u, new_v, face_id = in_mesh.getUVAtPoint(points[k], space=om.MSpace.kObject, uvSet=in_new_uv)
+                            # 找到新uv位置最近的像素点
+                            new_u = min(floor(new_u / step_i), image_shape[0] - 1)
+                            new_v = min(floor(new_v / step_j), image_shape[1] - 1)
+                            new_image[new_u, new_v, :] = in_image[new_u, new_v, :]
+                            break
+        progress_bar.stop_progress_bar()
+        return new_image

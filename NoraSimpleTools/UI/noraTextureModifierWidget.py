@@ -16,29 +16,24 @@ from PySide6.QtGui import (QBrush, QColor, QConicalGradient, QCursor,
     QImage, QKeySequence, QLinearGradient, QPainter,
     QPalette, QPixmap, QRadialGradient, QTransform)
 from PySide6.QtWidgets import (QApplication, QCheckBox, QDialog, QFrame,
-    QGroupBox, QHBoxLayout, QPushButton, QSizePolicy,
-    QSpacerItem, QVBoxLayout, QWidget)
+    QGroupBox, QPushButton, QSizePolicy, QSpacerItem,
+    QVBoxLayout, QWidget)
 
 class Ui_noraTextureModifierWidget(object):
     def setupUi(self, noraTextureModifierWidget):
         if not noraTextureModifierWidget.objectName():
             noraTextureModifierWidget.setObjectName(u"noraTextureModifierWidget")
-        noraTextureModifierWidget.resize(417, 493)
+        noraTextureModifierWidget.resize(502, 493)
         self.verticalLayout_2 = QVBoxLayout(noraTextureModifierWidget)
         self.verticalLayout_2.setObjectName(u"verticalLayout_2")
         self.groupBox = QGroupBox(noraTextureModifierWidget)
         self.groupBox.setObjectName(u"groupBox")
         self.verticalLayout = QVBoxLayout(self.groupBox)
         self.verticalLayout.setObjectName(u"verticalLayout")
-        self.targetModelHorizontalLayout = QHBoxLayout()
-        self.targetModelHorizontalLayout.setObjectName(u"targetModelHorizontalLayout")
+        self.texMapTargetslLayout = QVBoxLayout()
+        self.texMapTargetslLayout.setObjectName(u"texMapTargetslLayout")
 
-        self.verticalLayout.addLayout(self.targetModelHorizontalLayout)
-
-        self.originTexHorizontalLayout = QHBoxLayout()
-        self.originTexHorizontalLayout.setObjectName(u"originTexHorizontalLayout")
-
-        self.verticalLayout.addLayout(self.originTexHorizontalLayout)
+        self.verticalLayout.addLayout(self.texMapTargetslLayout)
 
         self.line = QFrame(self.groupBox)
         self.line.setObjectName(u"line")
@@ -47,15 +42,10 @@ class Ui_noraTextureModifierWidget(object):
 
         self.verticalLayout.addWidget(self.line)
 
-        self.originUVHorizontalLayout = QHBoxLayout()
-        self.originUVHorizontalLayout.setObjectName(u"originUVHorizontalLayout")
+        self.texMapSettingslLayout = QVBoxLayout()
+        self.texMapSettingslLayout.setObjectName(u"texMapSettingslLayout")
 
-        self.verticalLayout.addLayout(self.originUVHorizontalLayout)
-
-        self.targetUVHorizontalLayout = QHBoxLayout()
-        self.targetUVHorizontalLayout.setObjectName(u"targetUVHorizontalLayout")
-
-        self.verticalLayout.addLayout(self.targetUVHorizontalLayout)
+        self.verticalLayout.addLayout(self.texMapSettingslLayout)
 
         self.normalCheckBox = QCheckBox(self.groupBox)
         self.normalCheckBox.setObjectName(u"normalCheckBox")
@@ -64,6 +54,8 @@ class Ui_noraTextureModifierWidget(object):
 
         self.originTangentCheckBox = QCheckBox(self.groupBox)
         self.originTangentCheckBox.setObjectName(u"originTangentCheckBox")
+        self.originTangentCheckBox.setEnabled(True)
+        self.originTangentCheckBox.setChecked(True)
 
         self.verticalLayout.addWidget(self.originTangentCheckBox)
 
@@ -82,7 +74,7 @@ class Ui_noraTextureModifierWidget(object):
 
         self.verticalLayout_2.addWidget(self.groupBox)
 
-        self.verticalSpacer = QSpacerItem(20, 339, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+        self.verticalSpacer = QSpacerItem(20, 1, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
 
         self.verticalLayout_2.addItem(self.verticalSpacer)
 
@@ -95,8 +87,8 @@ class Ui_noraTextureModifierWidget(object):
     def retranslateUi(self, noraTextureModifierWidget):
         noraTextureModifierWidget.setWindowTitle(QCoreApplication.translate("noraTextureModifierWidget", u"Dialog", None))
         self.groupBox.setTitle(QCoreApplication.translate("noraTextureModifierWidget", u"Texture Mapping", None))
-        self.normalCheckBox.setText(QCoreApplication.translate("noraTextureModifierWidget", u"Normal Map", None))
-        self.originTangentCheckBox.setText(QCoreApplication.translate("noraTextureModifierWidget", u"Orign Tangent Mode", None))
+        self.normalCheckBox.setText(QCoreApplication.translate("noraTextureModifierWidget", u"\u6cd5\u7ebf\u56fe", None))
+        self.originTangentCheckBox.setText(QCoreApplication.translate("noraTextureModifierWidget", u"\u5207\u7ebf\u7a7a\u95f4\u53d8\u6362\u6a21\u5f0f", None))
         self.mappingPushButton.setText(QCoreApplication.translate("noraTextureModifierWidget", u"\u751f\u6210\u7eb9\u7406", None))
     # retranslateUi
 
