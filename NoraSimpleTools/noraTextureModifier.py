@@ -1,7 +1,6 @@
 from importlib import reload
 from math import floor
 
-import cv2
 from PySide6 import QtCore, QtWidgets
 from NoraSimpleTools.UI import noraTextureModifierWidget
 from NoraGeneral import noraUtilities, noraMDagObjectSelect, noraIntNumber, noraFileList, noraFloatNumber
@@ -77,9 +76,9 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
         source_files = self.origin_tex_widget.get_file_list()
         origin_uv_index = self.origin_uv_index_widget.number
         new_uv_index = self.new_uv_index_widget.number
-        # if origin_uv_index == new_uv_index:
-        #     print("原始UV索引不能等于新UV索引")
-        #     return
+        if origin_uv_index == new_uv_index:
+            print("原始UV索引不能等于新UV索引")
+            return
         # 获取模型
         target_mesh = None # MFnMesh
         target_model_name = self.target_model_widget.get_dag_name()
@@ -164,7 +163,5 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
                         # 找到新uv位置最近的像素点
                         new_image[i, j, :] = in_image[floor(old_uv[0] / step_i), floor(old_uv[1] / step_j), :]
                         break
-                # else:
-                #     new_image[i, j, :] = in_image[i, j, :]
         progress_bar.stop_progress_bar()
         return new_image
