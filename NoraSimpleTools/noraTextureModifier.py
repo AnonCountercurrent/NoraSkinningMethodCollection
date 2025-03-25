@@ -1,6 +1,7 @@
 from importlib import reload
 from math import floor
 
+import cv2
 from PySide6 import QtCore, QtWidgets
 from NoraSimpleTools.UI import noraTextureModifierWidget
 from NoraGeneral import noraUtilities, noraMDagObjectSelect, noraIntNumber, noraFileList, noraFloatNumber
@@ -76,9 +77,9 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
         source_files = self.origin_tex_widget.get_file_list()
         origin_uv_index = self.origin_uv_index_widget.number
         new_uv_index = self.new_uv_index_widget.number
-        if origin_uv_index == new_uv_index:
-            print("原始UV索引不能等于新UV索引")
-            return
+        # if origin_uv_index == new_uv_index:
+        #     print("原始UV索引不能等于新UV索引")
+        #     return
         # 获取模型
         target_mesh = None # MFnMesh
         target_model_name = self.target_model_widget.get_dag_name()
@@ -143,24 +144,27 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
         step_j = 1 / image_shape[1]
         half_step_i = 0.5 * step_i
         half_step_j = 0.5 * step_j
+        tex_to_uv_rot = np.array([[0, 1], [-1, 0]]) # uv左下角00，纹理左上角00，相当于逆时针旋转 90°
+        uv_to_tex_rot = np.array([[0, -1], [1, 0]])
+        rot_center = np.array([0.5, 0.5])
         progress_bar = NoraProgressBar()
         progress_bar.start_progress_bar(status_text=bar_info, interruptable=False, max_value=image_shape[0])
         for i in range(image_shape[0]):
             progress_bar.set_progress_bar_value(i)
             for j in range(image_shape[1]):
-                u = i * step_i + half_step_i
-                v = i * step_j + half_step_j
-                # 旧UV位置-模型坐标-新UV位置
-                polygon_ids, points = in_mesh.getPointsAtUV(u, v, space=om.MSpace.kObject, uvSet=in_old_uv, tolerance=in_tol)
+                # 纹理坐标 ij 映射到 uv 坐标
+                new_uv = rot_center + np.matmul(tex_to_uv_rot, np.array([i * step_i + half_step_i, j * step_j + half_step_j]) - rot_center)
+                # 新UV位置-模型坐标-旧UV位置
+                polygon_ids, points = in_mesh.getPointsAtUV(new_uv[0], new_uv[1], space=om.MSpace.kObject, uvSet=in_new_uv, tolerance=in_tol)
                 if points is not None:
                     for k in range(len(points)):
-                        uv = in_mesh.getPolygonUV(polygon_ids[k], 0, uvSet=in_new_uv)
-                        if 0 <= uv[0] <= 1 and 0 <= uv[1] <= 1: # 这里要求点在新UV集的01范围内
-                            new_u, new_v, face_id = in_mesh.getUVAtPoint(points[k], space=om.MSpace.kObject, uvSet=in_new_uv)
-                            # 找到新uv位置最近的像素点
-                            new_u = min(floor(new_u / step_i), image_shape[0] - 1)
-                            new_v = min(floor(new_v / step_j), image_shape[1] - 1)
-                            new_image[new_u, new_v, :] = in_image[new_u, new_v, :]
-                            break
+                        old_u, old_v, face_id = in_mesh.getUVAtPoint(points[k], space=om.MSpace.kObject, uvSet=in_old_uv)
+                        # 将 uv 映射到纹理坐标
+                        old_uv = rot_center + np.matmul(uv_to_tex_rot, np.array([old_u, old_v]) - rot_center)
+                        # 找到新uv位置最近的像素点
+                        new_image[i, j, :] = in_image[floor(old_uv[0] / step_i), floor(old_uv[1] / step_j), :]
+                        break
+                # else:
+                #     new_image[i, j, :] = in_image[i, j, :]
         progress_bar.stop_progress_bar()
         return new_image
