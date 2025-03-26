@@ -14,6 +14,7 @@ import maya.api.OpenMaya as om
 import maya.cmds as cmds
 from PIL import Image
 import numpy as np
+import itertools
 
 
 def get_title():
@@ -34,6 +35,18 @@ def get_height():
 
 def get_use_custom_front_style():
     return False
+
+
+class NpArrayKey:
+
+    def __init__(self, array):
+        self.array = np.array(array)
+
+    def __hash__(self):
+        return hash(self.array.tobytes())
+
+    def __eq__(self, other):
+        return np.array_equal(self.array, other.array)
 
 
 class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTextureModifierWidget):
@@ -119,7 +132,7 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
             new_image = None
             if is_normal_map:
                 if origin_tangent_mode:
-                    pass
+                    new_image = NoraNormalMapping.remap_normal_tangent_mode(target_mesh, np_image, old_uv_set, new_uv_set, tol, f"{file_idx + 1}. {image_path}")
                 else:
                     pass
             else:
@@ -137,6 +150,7 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
 
     @staticmethod
     def remap_uv(in_mesh:om.MFnMesh, in_image:np.ndarray, in_old_uv, in_new_uv, in_tol=0.0001, bar_info=""):
+        calcu_space = om.MSpace.kObject
         new_image = np.zeros_like(in_image)
         image_shape = new_image.shape
         step_i = 1 / image_shape[0]
@@ -154,14 +168,87 @@ class NoraNormalMapping(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraText
                 # 纹理坐标 ij 映射到 uv 坐标
                 new_uv = rot_center + np.matmul(tex_to_uv_rot, np.array([i * step_i + half_step_i, j * step_j + half_step_j]) - rot_center)
                 # 新UV位置-模型坐标-旧UV位置
-                polygon_ids, points = in_mesh.getPointsAtUV(new_uv[0], new_uv[1], space=om.MSpace.kObject, uvSet=in_new_uv, tolerance=in_tol)
+                polygon_ids, points = in_mesh.getPointsAtUV(new_uv[0], new_uv[1], space=calcu_space, uvSet=in_new_uv, tolerance=in_tol)
                 if points is not None:
                     for k in range(len(points)):
-                        old_u, old_v, face_id = in_mesh.getUVAtPoint(points[k], space=om.MSpace.kObject, uvSet=in_old_uv)
+                        old_u, old_v, face_id = in_mesh.getUVAtPoint(points[k], space=calcu_space, uvSet=in_old_uv)
                         # 将 uv 映射到纹理坐标
                         old_uv = rot_center + np.matmul(uv_to_tex_rot, np.array([old_u, old_v]) - rot_center)
                         # 找到新uv位置最近的像素点
                         new_image[i, j, :] = in_image[floor(old_uv[0] / step_i), floor(old_uv[1] / step_j), :]
                         break
         progress_bar.stop_progress_bar()
+        return new_image
+
+    @staticmethod
+    def remap_normal_tangent_mode(in_mesh:om.MFnMesh, in_image:np.ndarray, in_old_uv, in_new_uv, in_tol=0.0001, bar_info=""):
+        calcu_space = om.MSpace.kObject
+        new_image = np.zeros_like(in_image)
+        image_shape = new_image.shape
+        step_i = 1 / image_shape[0]
+        step_j = 1 / image_shape[1]
+        half_step_i = 0.5 * step_i
+        half_step_j = 0.5 * step_j
+        tex_to_uv_rot = np.array([[0, 1], [-1, 0]])
+        uv_to_tex_rot = np.array([[0, -1], [1, 0]])
+        rot_center = np.array([0.5, 0.5])
+        progress_bar = NoraProgressBar()
+        # 收集好多边形和三角形
+        polygon_num = in_mesh.numPolygons
+        mesh_points = in_mesh.getPoints(space=calcu_space)
+        triangle_nums = []
+        triangle_indices = []
+        triangle_maps = []
+        for i in range(polygon_num):
+            triangle_indices.append(in_mesh.getPolygonVertices(i))
+            triangle_nums.append(len(triangle_indices[i]))
+            # 构造一个顶点组合映射三角形的字典
+            triangle_map = {}
+            for j in range(triangle_nums[i] // 3):
+                key_j = np.array([triangle_indices[i][j * 3], triangle_indices[i][j * 3 + 1], triangle_indices[i][j * 3 + 2]])
+                sorted_key_j = NpArrayKey(np.sort(key_j, axis=None).reshape(key_j.shape))
+                triangle_map[sorted_key_j] = j
+            triangle_maps.append(triangle_map)
+
+        progress_bar.start_progress_bar(status_text=bar_info, interruptable=False, max_value=image_shape[0])
+        for i in range(image_shape[0]):
+            progress_bar.set_progress_bar_value(i)
+            for j in range(image_shape[1]):
+                # 旧UV法线向量-模型空间-新UV法线向量
+                normal = in_image[i, j, :]
+                uv = rot_center + np.matmul(tex_to_uv_rot, np.array([i * step_i + half_step_i, j * step_j + half_step_j]) - rot_center)
+                polygon_ids, points = in_mesh.getPointsAtUV(uv[0], uv[1], space=calcu_space, uvSet=in_old_uv, tolerance=in_tol)
+                if points is not None:
+                    for k in range(len(points)):
+                        u, v, face_id = in_mesh.getUVAtPoint(points[k], space=calcu_space, uvSet=in_old_uv)
+                        if face_id > 0:
+                            # 计算出面上顶点的旧UV的切线和副切线，一个面一般有4个顶点
+                            face_tangents = in_mesh.getFaceVertexTangents(face_id, space=calcu_space, uvSet=in_old_uv)
+                            face_binormals = in_mesh.getFaceVertexBinormals(face_id, space=calcu_space, uvSet=in_old_uv)
+                            # 获取face对应的顶点索引
+                            face_vertex_num = len(face_tangents)
+                            face_about_vertex_indices = []
+                            for x in range(face_vertex_num):
+                                face_vertex_info_idx = in_mesh.getFaceVertexIndex(face_id, x, localVertex=True) # uv 单独的顶点索引
+                                print(face_vertex_info_idx)
+
+                                ## 看起来，我最好还是自己找 Polygon 里的三角形，看哪个合适了，MFnMesh 这个 getFaceAndVertexIndices 会卡死
+
+                                # face_about_vertex_indices.append(in_mesh.getFaceAndVertexIndices(face_vertex_info_idx, localVertex=False)[1]) # 映射出对应的顶点索引
+                            # # 获取 face 包含的三角形
+                            # polygon_id = polygon_ids[k]
+                            # combinations = itertools.combinations(face_about_vertex_indices, 3)
+                            # final_triangles = []
+                            # for comb in combinations:
+                            #     key_j = np.array([comb[0], comb[1], comb[2]])
+                            #     sorted_key_j = NpArrayKey(np.sort(key_j, axis=None).reshape(key_j.shape))
+                            #     if triangle_maps[polygon_id].__contains__(sorted_key_j):
+                            #         final_triangles.append(triangle_maps[polygon_id][sorted_key_j])
+                            # if len(final_triangles) != 0:
+                            #     print(face_id, polygon_id)
+                            #     break
+
+
+        progress_bar.stop_progress_bar()
+        return None
         return new_image
