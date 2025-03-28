@@ -49,6 +49,7 @@ class Ui_noraTextureModifierWidget(object):
 
         self.normalCheckBox = QCheckBox(self.groupBox)
         self.normalCheckBox.setObjectName(u"normalCheckBox")
+        self.normalCheckBox.setChecked(True)
 
         self.verticalLayout.addWidget(self.normalCheckBox)
 
