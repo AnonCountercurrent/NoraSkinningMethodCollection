@@ -200,9 +200,9 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
         tnb_n = (tnb_t ^ tnb_b).normalize()
         tnb_t = (tnb_t - (tnb_t * tnb_n) * tnb_n).normalize()
         tnb_b = (tnb_b - (tnb_b * tnb_n) * tnb_n - (tnb_b * tnb_t) * tnb_t).normalize()
-        tnb_rot = np.array([[tnb_t.x, tnb_n.x, tnb_b.x],
-                            [tnb_t.y, tnb_n.y, tnb_b.y],
-                            [tnb_t.z, tnb_n.z, tnb_b.z]])
+        tnb_rot = np.array([[tnb_t.x, tnb_b.x, tnb_n.x],
+                            [tnb_t.y, tnb_b.y, tnb_n.y],
+                            [tnb_t.z, tnb_b.z, tnb_n.z]])
         return tnb_rot
 
     @staticmethod
@@ -277,9 +277,12 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
             progress_bar.set_progress_bar_value(i)
             for j in range(image_shape[1]):
                 # 旧UV法线向量-模型空间-新UV法线向量
-                normal = in_image[i, j, :] * 2 - 1
                 uv = rot_center + np.matmul(tex_to_uv_rot, np.array([i * step_i + half_step_i, j * step_j + half_step_j]) - rot_center)
                 polygon_ids, points = in_mesh.getPointsAtUV(uv[0], uv[1], space=calcu_space, uvSet=in_old_uv, tolerance=in_tol)
+                new_image[i, j, :] = in_image[i, j, :]
+                normal = np.copy(in_image[i, j, :]).astype(np.float32)
+                normal = normal * 2 - 255
+                # normal = normal / np.linalg.norm(normal)
                 if points is not None:
                     for k in range(len(points)):
                         goto_next_ij = False
@@ -287,32 +290,37 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
                         # 找到点属于的三角形
                         poly_idx = polygon_ids[k]
                         poly_tri_num = mesh_triangle_info[0][poly_idx]
+                        poly_vertices = in_mesh.getPolygonVertices(poly_idx)
+                        # 全局索引到poly局部顶点索引映射
+                        mesh_to_local_map = {}
+                        for t in range(len(poly_vertices)):
+                            mesh_to_local_map[poly_vertices[t]] = t
                         for t in range(poly_tri_num):
-                            t_idx1 = t * 3
-                            t_idx2 = t * 3 + 1
-                            t_idx3 = t * 3 + 2
-                            triangle = in_mesh.getPolygonTriangleVertices(poly_idx, t)
-                            p1 = om.MVector(mesh_points[triangle[0]])
-                            p2 = om.MVector(mesh_points[triangle[1]])
-                            p3 = om.MVector(mesh_points[triangle[2]])
+                            poly_triangle_indices = in_mesh.getPolygonTriangleVertices(poly_idx, t)
+                            t_idx1 = poly_triangle_indices[0]
+                            t_idx2 = poly_triangle_indices[1]
+                            t_idx3 = poly_triangle_indices[2]
+                            t_local_idx1 = mesh_to_local_map[t_idx1]
+                            t_local_idx2 = mesh_to_local_map[t_idx2]
+                            t_local_idx3 = mesh_to_local_map[t_idx3]
+                            p1 = om.MVector(mesh_points[t_idx1])
+                            p2 = om.MVector(mesh_points[t_idx2])
+                            p3 = om.MVector(mesh_points[t_idx3])
+                            # 求交判断具体是那个三角形
                             if NoraTextureModifier.point_triangle_distance(p1, p2, p3, point) <= in_tol * 10:
-                                # 这个的输入是多边形本地顶点索引，而非三角形下标。。。
-                                uv1 = in_mesh.getPolygonUV(poly_idx, t_idx1, uvSet=in_old_uv)
-                                uv2 = in_mesh.getPolygonUV(poly_idx, t_idx2, uvSet=in_old_uv)
-                                uv3 = in_mesh.getPolygonUV(poly_idx, t_idx3, uvSet=in_old_uv)
+                                uv1 = in_mesh.getPolygonUV(poly_idx, t_local_idx1, uvSet=in_old_uv)
+                                uv2 = in_mesh.getPolygonUV(poly_idx, t_local_idx2, uvSet=in_old_uv)
+                                uv3 = in_mesh.getPolygonUV(poly_idx, t_local_idx3, uvSet=in_old_uv)
                                 tnb_mat = NoraTextureModifier.compute_tnb_rot_matrix(p1, p2, p3, uv1, uv2, uv3)
                                 obj_space_normal = np.matmul(tnb_mat, normal[0:3])
-                                new_uv1 = in_mesh.getPolygonUV(poly_idx, t_idx1, uvSet=in_old_uv)
-                                new_uv2 = in_mesh.getPolygonUV(poly_idx, t_idx2, uvSet=in_old_uv)
-                                new_uv3 = in_mesh.getPolygonUV(poly_idx, t_idx3, uvSet=in_old_uv)
+                                new_uv1 = in_mesh.getPolygonUV(poly_idx, t_local_idx1, uvSet=in_new_uv)
+                                new_uv2 = in_mesh.getPolygonUV(poly_idx, t_local_idx2, uvSet=in_new_uv)
+                                new_uv3 = in_mesh.getPolygonUV(poly_idx, t_local_idx3, uvSet=in_new_uv)
                                 new_tnb_mat = NoraTextureModifier.compute_tnb_rot_matrix(p1, p2, p3, new_uv1, new_uv2, new_uv3)
                                 new_normal = np.matmul(np.transpose(new_tnb_mat), obj_space_normal)
-                                new_normal = (new_normal + 1) * 0.5
-                                new_image[i, j, 0:3] = new_normal
-                                new_image[i, j, 3] = 1
+                                new_image[i, j, 0:3] = (new_normal + 255) * 0.5
                                 goto_next_ij = True
                         if goto_next_ij:
                             break
-
         progress_bar.stop_progress_bar()
         return new_image
