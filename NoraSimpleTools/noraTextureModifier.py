@@ -207,7 +207,52 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
 
     @staticmethod
     def point_triangle_distance(a, b, c, p):
-        return 100
+        # Triangle edges
+        ab = b - a
+        ac = c - a
+        ap = p - a
+        d1 = ab * ap
+        d2 = ac * ap
+        if d1 <= 0 and d2 <= 0:
+            out_r = a
+            return (out_r - p).length()
+
+        dp = p - b
+        d3 = ab * dp
+        d4 = ac * dp
+        if d3 >= 0 and d4 <= d3:
+            out_r = b
+            return (out_r - p).length()
+        vc = d1 * d4 - d3 * d2
+        if vc <= 0 and d1 >= 0 and d3 <= 0:
+            v = d1 / (d1 - d3)
+            out_r = a + ab * v
+            return (out_r - p).length()
+
+        cp = p - c
+        d5 = ab * cp
+        d6 = ac * cp
+        if d6 >= 0 and d5 <= d6:
+            out_r = c
+            return (out_r - p).length()
+
+        vb = d5 * d2 - d1 * d6
+        if vb <= 0 and d2 >= 0 and d6 <= 0:
+            w = d2 / (d2 - d6)
+            out_r = a + ac * w
+            return (out_r - p).length()
+
+        va = d3 * d6 - d5 * d4
+        if va <= 0 and (d4 - d3) >= 0 and (d5 - d6) >= 0:
+            w = (d4 - d3) / ((d4 - d3) + (d5 - d6))
+            out_r = b + (c - b) * w
+            return (out_r - p).length()
+
+        denom = 1 / (va + vb + vc)
+        v = vb * denom
+        w = vc * denom
+        out_r = a + ab * v + ac * w
+        return (out_r - p).length()
 
     @staticmethod
     def remap_normal_tangent_mode(in_mesh:om.MFnMesh, in_image:np.ndarray, in_old_uv, in_new_uv, in_tol=0.0001, bar_info=""):
@@ -246,10 +291,12 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
                             t_idx1 = t * 3
                             t_idx2 = t * 3 + 1
                             t_idx3 = t * 3 + 2
-                            p1 = om.MVector(mesh_points[mesh_triangle_info[1][poly_idx][t_idx1]])
-                            p2 = om.MVector(mesh_points[mesh_triangle_info[1][poly_idx][t_idx2]])
-                            p3 = om.MVector(mesh_points[mesh_triangle_info[1][poly_idx][t_idx3]])
+                            triangle = in_mesh.getPolygonTriangleVertices(poly_idx, t)
+                            p1 = om.MVector(mesh_points[triangle[0]])
+                            p2 = om.MVector(mesh_points[triangle[1]])
+                            p3 = om.MVector(mesh_points[triangle[2]])
                             if NoraTextureModifier.point_triangle_distance(p1, p2, p3, point) <= in_tol * 10:
+                                # 这个的输入是多边形本地顶点索引，而非三角形下标。。。
                                 uv1 = in_mesh.getPolygonUV(poly_idx, t_idx1, uvSet=in_old_uv)
                                 uv2 = in_mesh.getPolygonUV(poly_idx, t_idx2, uvSet=in_old_uv)
                                 uv3 = in_mesh.getPolygonUV(poly_idx, t_idx3, uvSet=in_old_uv)
