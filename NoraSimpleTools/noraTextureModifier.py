@@ -66,7 +66,7 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
         self.origin_tex_widget.set_label_text("原始纹理：")
         self.tol_widget = noraFloatNumber.NoraFloatNumber(default_value=0.0001, min_value=0.000001, max_value=0.1, decimals=6)
         self.tol_widget.set_label_text("精度：")
-        self.blur_times_widget = noraIntNumber.NoraIntNumber(default_value=4, min_value=0, max_value=32)
+        self.blur_times_widget = noraIntNumber.NoraIntNumber(default_value=8, min_value=0, max_value=32)
         self.blur_times_widget.set_label_text("边界填充次数：")
 
         self.texMapTargetslLayout.addWidget(self.target_model_widget)
