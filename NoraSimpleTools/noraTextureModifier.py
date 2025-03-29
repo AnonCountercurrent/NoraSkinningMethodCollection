@@ -284,7 +284,7 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
             for j in range(image_shape[1]):
                 # 旧UV法线向量-模型空间-新UV法线向量
                 uv = rot_center + np.matmul(tex_to_uv_rot, np.array([i * step_i + half_step_i, j * step_j + half_step_j]) - rot_center)
-                polygon_ids, points = in_mesh.getPointsAtUV(uv[0], uv[1], space=calcu_space, uvSet=in_old_uv, tolerance=in_tol)
+                polygon_ids, points = in_mesh.getPointsAtUV(uv[0], uv[1], space=calcu_space, uvSet=in_old_uv, tolerance=0.0)
                 new_image[i, j, :] = in_image[i, j, :]
                 normal = np.copy(in_image[i, j, :]).astype(np.float32)
                 normal = normal * 2 - 255
