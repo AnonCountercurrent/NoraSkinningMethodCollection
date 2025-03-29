@@ -66,12 +66,15 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
         self.origin_tex_widget.set_label_text("原始纹理：")
         self.tol_widget = noraFloatNumber.NoraFloatNumber(default_value=0.0001, min_value=0.000001, max_value=0.1, decimals=6)
         self.tol_widget.set_label_text("精度：")
+        self.blur_times_widget = noraIntNumber.NoraIntNumber(default_value=4, min_value=0, max_value=32)
+        self.blur_times_widget.set_label_text("边界填充次数：")
 
         self.texMapTargetslLayout.addWidget(self.target_model_widget)
         self.texMapTargetslLayout.addWidget(self.origin_tex_widget)
         self.texMapSettingslLayout.addWidget(self.origin_uv_index_widget)
         self.texMapSettingslLayout.addWidget(self.new_uv_index_widget)
         self.texMapSettingslLayout.addWidget(self.tol_widget)
+        self.texMapSettingslLayout.addWidget(self.blur_times_widget)
         self.normal_check_box_changed()
 
         # events
@@ -89,6 +92,7 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
         source_files = self.origin_tex_widget.get_file_list()
         origin_uv_index = self.origin_uv_index_widget.number
         new_uv_index = self.new_uv_index_widget.number
+        blur_times = self.blur_times_widget.number
         if origin_uv_index == new_uv_index:
             print("原始UV索引不能等于新UV索引")
             return
@@ -132,7 +136,7 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
             new_image = None
             if is_normal_map:
                 if origin_tangent_mode:
-                    new_image = NoraTextureModifier.remap_normal_tangent_mode(target_mesh, np_image, old_uv_set, new_uv_set, tol, f"{file_idx + 1}. {image_path}")
+                    new_image = NoraTextureModifier.remap_normal_tangent_mode(target_mesh, np_image, old_uv_set, new_uv_set, tol, f"{file_idx + 1}. {image_path}", blur_times)
                 else:
                     pass
             else:
@@ -255,7 +259,7 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
         return (out_r - p).length()
 
     @staticmethod
-    def remap_normal_tangent_mode(in_mesh:om.MFnMesh, in_image:np.ndarray, in_old_uv, in_new_uv, in_tol=0.0001, bar_info=""):
+    def remap_normal_tangent_mode(in_mesh:om.MFnMesh, in_image:np.ndarray, in_old_uv, in_new_uv, in_tol=0.0001, bar_info="", in_blur_times=4):
         calcu_space = om.MSpace.kObject
         new_image = np.zeros_like(in_image)
         image_shape = new_image.shape
@@ -271,10 +275,12 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
         polygon_num = in_mesh.numPolygons
         mesh_points = in_mesh.getPoints(space=calcu_space)
         mesh_triangle_info = in_mesh.getTriangles()
-
+        # 用来缓存哪些像素没有填入颜色
+        none_point_pixels = []
         progress_bar.start_progress_bar(status_text=bar_info, interruptable=False, max_value=image_shape[0])
         for i in range(image_shape[0]):
             progress_bar.set_progress_bar_value(i)
+            none_point_pixels.append(set())
             for j in range(image_shape[1]):
                 # 旧UV法线向量-模型空间-新UV法线向量
                 uv = rot_center + np.matmul(tex_to_uv_rot, np.array([i * step_i + half_step_i, j * step_j + half_step_j]) - rot_center)
@@ -283,7 +289,7 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
                 normal = np.copy(in_image[i, j, :]).astype(np.float32)
                 normal = normal * 2 - 255
                 # normal = normal / np.linalg.norm(normal)
-                if points is not None:
+                if (points is not None) and (len(points) > 0):
                     for k in range(len(points)):
                         goto_next_ij = False
                         point = om.MVector(points[k])
@@ -322,5 +328,39 @@ class NoraTextureModifier(QtWidgets.QDialog, noraTextureModifierWidget.Ui_noraTe
                                 goto_next_ij = True
                         if goto_next_ij:
                             break
+                else:
+                    new_image[i, j, 0:3] = np.array([127, 127, 255],dtype=np.float32)
+                    if 0 < j < image_shape[0] - 1:
+                        none_point_pixels[i].add(j)
+
+        # 将边界延展一些
+        if in_blur_times > 0:
+            progress_bar.start_progress_bar(status_text=bar_info + " blur", interruptable=False, max_value=in_blur_times)
+            for t in range(in_blur_times):
+                progress_bar.set_progress_bar_value(t)
+                remove_list = []
+                for i in range(1, image_shape[0] - 1):
+                    for j in none_point_pixels[i]:
+                        # 在 3x3 范围内找一个和原像素匹配的
+                        current_pixel = in_image[i, j, :]
+                        go_next_pixel = False
+                        for ii in range(-1, 2):
+                            for jj in range(-1, 2):
+                                if ii == jj:
+                                    continue
+                                idx_i = i + ii
+                                idx_j = j + jj
+                                round_pixel = in_image[idx_i, idx_j, :]
+                                if (round_pixel.all() == current_pixel.all()) and (idx_j not in none_point_pixels[idx_i]):
+                                    new_image[i, j, :] = new_image[idx_i, idx_j, :]
+                                    go_next_pixel = True
+                                    remove_list.append((i, j))
+                                    break
+                            if go_next_pixel:
+                                break
+                # 单次迭代结束的时候移除已填充像素
+                for ij in remove_list:
+                    none_point_pixels[ij[0]].remove(ij[1])
+
         progress_bar.stop_progress_bar()
         return new_image
